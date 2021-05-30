@@ -13,9 +13,16 @@ class NoteApplication : Application() {
         fun getApplicationContext(): Context = context
     }
 
+    lateinit var applicationComponent: ApplicationComponent
+
 
     override fun onCreate() {
         super.onCreate()
 
+        context = applicationContext
+        applicationComponent = DaggerApplicationComponent
+            .builder()
+            .application(this)
+            .build()
     }
 }
