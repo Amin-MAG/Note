@@ -1,33 +1,40 @@
-package ir.mag.interview.note.data.model
+package ir.mag.interview.note.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
+import ir.mag.interview.note.database.entity.folder.Folder
+import ir.mag.interview.note.database.entity.folder.FolderDao
+import ir.mag.interview.note.database.entity.note.Note
+import ir.mag.interview.note.database.entity.note.NoteDao
 
 @Database(
-    entities = [Note::class],
+    entities = [Folder::class, Note::class],
     version = 1,
     exportSchema = false
 )
-abstract class NoteDatabase : RoomDatabase() {
+abstract class FilesDatabase : RoomDatabase() {
+
+    abstract fun folderDao(): FolderDao
 
     abstract fun noteDao(): NoteDao
 
     companion object {
 
         @Volatile
-        private var instance: NoteDatabase? = null
+        private var instance: FilesDatabase? = null
 
-        fun getDatabase(context: Context): NoteDatabase {
-            val returnedInstance = instance
+        fun getDatabase(context: Context): FilesDatabase {
+            val returnedInstance =
+                instance
             if (returnedInstance != null) {
                 return returnedInstance
             }
 
             synchronized(this) {
-                val tempInstance = instance
+                val tempInstance =
+                    instance
                 if (tempInstance != null) {
                     return tempInstance
                 }
@@ -35,8 +42,8 @@ abstract class NoteDatabase : RoomDatabase() {
                 // Create new object
                 val newInstance = Room.databaseBuilder(
                     context.applicationContext,
-                    NoteDatabase::class.java,
-                    "notes_database"
+                    FilesDatabase::class.java,
+                    "files_database"
                 ).build()
                 instance = newInstance
 
