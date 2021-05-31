@@ -12,9 +12,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
-import ir.mag.interview.note.data.model.Note
 import ir.mag.interview.note.databinding.FragmentNotesBinding
 import ir.mag.interview.note.ui.NotesMainActivity
+import ir.mag.interview.note.ui.main.recycler.adapter.FilesRecyclerAdapter
 import javax.inject.Inject
 
 /**
@@ -33,6 +33,9 @@ constructor(
     }
 
     private lateinit var binding: FragmentNotesBinding
+
+    @Inject
+    lateinit var filesRecyclerAdapter: FilesRecyclerAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -53,19 +56,24 @@ constructor(
         )
         binding.lifecycleOwner = this
 
-        // Insert test
-//        viewModel.addNote(Note(0, "Untitled", "Nothing in this note"))
+        setupUI()
 
-        // Read test
-        Log.d(TAG, "onCreateView: ${viewModel.notes.value}")
+        // Inflate the layout for this fragment
+        return binding.root
+    }
+
+
+    private fun setupUI() {
+        // set adapter for files recycler and observe database
+        binding.notesFilesList.adapter = filesRecyclerAdapter
         viewModel.notes.observe(this, Observer {
             it?.let {
-                Log.d(TAG, "onCreateView: $it")
+                Log.d(TAG, "setupUI observe files: $it")
+                filesRecyclerAdapter.files = it
+                filesRecyclerAdapter.notifyDataSetChanged()
             }
         })
 
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notes, container, false)
     }
 
     companion object {
