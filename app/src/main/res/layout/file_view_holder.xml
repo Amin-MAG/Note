@@ -60,6 +60,7 @@
                 app:shapeAppearance="@style/Widget.MaterialComponents.CircularProgressIndicator">
 
                 <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/file_card_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_note"

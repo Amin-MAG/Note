@@ -4,10 +4,12 @@ import android.app.Activity
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import ir.mag.interview.note.R
-import ir.mag.interview.note.database.entity.File
+import ir.mag.interview.note.database.entity.file.File
+import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
 import ir.mag.interview.note.databinding.FileViewHolderBinding
 
@@ -51,15 +53,27 @@ class FilesRecyclerAdapter : RecyclerView.Adapter<FilesRecyclerAdapter.FileViewH
             Log.d(TAG, "bind: ")
 
             when (file.type) {
+
                 File.Types.NOTE -> {
                     val note = file as Note
 
                     binding.fileCardTitle.text = note.title
                     binding.fileCardDescription.text = note.date.toString()
+                    binding.fileCardIconFrame.background =
+                        ContextCompat.getDrawable(activity, R.drawable.circle_light_blue);
+                    binding.fileCardIcon.setImageResource(R.drawable.ic_note)
                 }
+
                 File.Types.FOLDER -> {
-//                    val folder = file as Note
+                    val folder = file as Folder
+
+                    binding.fileCardTitle.text = folder.name
+                    binding.fileCardDescription.text = "تعداد"
+                    binding.fileCardIconFrame.background =
+                        ContextCompat.getDrawable(activity, R.drawable.circle_yellow);
+                    binding.fileCardIcon.setImageResource(R.drawable.ic_folder)
                 }
+
                 else -> throw UnsupportedOperationException("can not show this type of file")
             }
 
