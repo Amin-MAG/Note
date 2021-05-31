@@ -11,6 +11,7 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
+        DatabaseModule::class,
         SubComponentsModule::class
     ]
 )
