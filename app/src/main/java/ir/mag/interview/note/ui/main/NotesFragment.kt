@@ -74,6 +74,14 @@ constructor(
             }
         })
 
+
+        // floating action button
+        binding.fabNewNote.setOnClickListener {
+            viewModel.addUntitledNote()
+        }
+        binding.fabNewFolder.setOnClickListener {
+            viewModel.addUntitledFolder()
+        }
     }
 
     companion object {
