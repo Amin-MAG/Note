@@ -1,9 +1,12 @@
 package ir.mag.interview.note.database
 
+import android.content.ContentValues
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
+import android.icu.text.CaseMap
+import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.folder.FolderDao
 import ir.mag.interview.note.database.entity.note.Note
@@ -19,6 +22,29 @@ abstract class FilesDatabase : RoomDatabase() {
     abstract fun folderDao(): FolderDao
 
     abstract fun noteDao(): NoteDao
+
+    class FilesDatabaseCallback : Callback() {
+        override fun onCreate(db: SupportSQLiteDatabase) {
+            super.onCreate(db)
+
+            // create root folder
+            val values = ContentValues().apply {
+                put("folderId", 1L)
+                put("parentFolderId", 0L)
+                put("name", "/")
+            }
+            db.insert("folders", CONFLICT_IGNORE, values)
+        }
+
+        override fun onOpen(db: SupportSQLiteDatabase) {
+            super.onOpen(db)
+        }
+
+        override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+            super.onDestructiveMigration(db)
+        }
+    }
+
 
     companion object {
 
@@ -44,7 +70,7 @@ abstract class FilesDatabase : RoomDatabase() {
                     context.applicationContext,
                     FilesDatabase::class.java,
                     "files_database"
-                ).build()
+                ).addCallback(FilesDatabaseCallback()).build()
                 instance = newInstance
 
                 return newInstance
