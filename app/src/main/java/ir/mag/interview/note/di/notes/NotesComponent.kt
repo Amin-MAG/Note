@@ -8,6 +8,7 @@ import ir.mag.interview.note.ui.main.NotesFragment
 @Subcomponent(
     modules = [
         NotesModule::class,
+        NotesFragmentModule::class,
         NotesViewModelModule::class
     ]
 )
@@ -20,4 +21,5 @@ interface NotesComponent {
     }
 
     fun inject(activity: NotesMainActivity)
+    fun inject(fragment: NotesFragment)
 }

@@ -15,7 +15,15 @@ import javax.inject.Inject
 class NotesMainActivity : AppCompatActivity() {
 
     lateinit var notesComponent: NotesComponent
+
+    @Inject
+    lateinit var fragmentFactory: NotesFragmentFactory
+
     lateinit var binding: ActivityNotesMainBinding
+
+    // Fragments
+    private lateinit var notesFragment: Fragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate: ")
         inject()
@@ -29,6 +37,19 @@ class NotesMainActivity : AppCompatActivity() {
 
         setupUI()
     }
+
+    private fun setupUI() {
+        Log.d(TAG, "setupUI: ")
+        UiUtil.changeFragment(
+            supportFragmentManager,
+            notesFragment,
+            binding.mainFrameLayout.id,
+            true,
+            notesFragment::class.java.name
+        )
+    }
+
+
     private fun inject() {
         notesComponent =
             (applicationContext as NoteApplication).applicationComponent
