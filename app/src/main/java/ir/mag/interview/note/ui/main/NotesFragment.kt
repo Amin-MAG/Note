@@ -9,8 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
+import ir.mag.interview.note.data.model.Note
 import ir.mag.interview.note.databinding.FragmentNotesBinding
 import ir.mag.interview.note.ui.NotesMainActivity
 import javax.inject.Inject
@@ -51,8 +53,16 @@ constructor(
         )
         binding.lifecycleOwner = this
 
+        // Insert test
+//        viewModel.addNote(Note(0, "Untitled", "Nothing in this note"))
 
-        viewModel.test()
+        // Read test
+        Log.d(TAG, "onCreateView: ${viewModel.notes.value}")
+        viewModel.notes.observe(this, Observer {
+            it?.let {
+                Log.d(TAG, "onCreateView: $it")
+            }
+        })
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_notes, container, false)
