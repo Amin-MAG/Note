@@ -12,5 +12,12 @@ import javax.inject.Singleton
 @Module
 object DatabaseModule {
 
+    @JvmStatic
+    @Provides
+    fun provideNoteDao(
+        context: Application
+    ): NoteDao {
+        return NoteDatabase.getDatabase(context).noteDao()
+    }
 
 }
