@@ -1,4 +1,4 @@
-package ir.mag.interview.note.database.entity.relation
+package ir.mag.interview.note.database.relation
 
 import androidx.room.Embedded
 import androidx.room.Relation

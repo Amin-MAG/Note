@@ -1,4 +1,4 @@
-package ir.mag.interview.note.database.entity
+package ir.mag.interview.note.database.entity.file
 
 abstract class File {
     enum class Types {
