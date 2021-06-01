@@ -6,4 +6,6 @@
     <string name="untitled">بدون عنوان</string>
     <string name="note_editor_hint">متن خود را اینجا بنویسید.</string>
     <string name="notes">یادداشت ها</string>
+    <string name="delete">حذف کردن</string>
+    <string name="edit">تغییر عنوان</string>
 </resources>
