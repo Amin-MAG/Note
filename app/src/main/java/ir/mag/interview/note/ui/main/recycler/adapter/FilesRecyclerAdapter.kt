@@ -1,9 +1,18 @@
 package ir.mag.interview.note.ui.main.recycler.adapter
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.graphics.drawable.InsetDrawable
+import android.os.Build
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.MenuRes
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -70,7 +79,9 @@ constructor(
                         notesViewModel.goToEditPage(note)
                     }
                     binding.fileCardOptionButton.setOnClickListener {
-                        TODO("yet not implemented")
+                        it?.let {
+                            showMenu(it, R.menu.note_file_more_menu)
+                        }
                     }
                 }
 
@@ -88,7 +99,9 @@ constructor(
                     }
                     binding.fileCardOptionButton.setOnClickListener {
                         Log.d(TAG, "bind onclick more button: ")
-                        TODO("yet not implemented")
+                        it?.let {
+                            showMenu(it, R.menu.folder_file_more_menu)
+                        }
                     }
                 }
 
@@ -97,6 +110,48 @@ constructor(
 
         }
 
+        //In the showMenu function from the previous example:
+        @SuppressLint("RestrictedApi")
+        private fun showMenu(v: View, @MenuRes menuRes: Int) {
+            val popup = PopupMenu(activity, v)
+            popup.menuInflater.inflate(menuRes, popup.menu)
+
+            if (popup.menu is MenuBuilder) {
+                val menuBuilder = popup.menu as MenuBuilder
+                menuBuilder.setOptionalIconsVisible(true)
+                for (item in menuBuilder.visibleItems) {
+                    val iconMarginPx =
+                        TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP, 20f, activity.resources.displayMetrics
+                        )
+                            .toInt()
+                    if (item.icon != null) {
+                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+                            item.icon = InsetDrawable(item.icon, iconMarginPx, 0, iconMarginPx, 0)
+                        } else {
+                            item.icon =
+                                object :
+                                    InsetDrawable(item.icon, iconMarginPx, 0, iconMarginPx, 0) {
+                                    override fun getIntrinsicWidth(): Int {
+                                        return intrinsicHeight + iconMarginPx + iconMarginPx
+                                    }
+                                }
+                        }
+                    }
+                }
+            }
+
+            popup.setOnMenuItemClickListener { menuItem: MenuItem ->
+                Log.d(TAG, "showMenu: Respond to menu item click.")
+
+                true
+            }
+            popup.setOnDismissListener {
+                Log.d(TAG, "showMenu: Respond to popup being dismissed.")
+            }
+
+            popup.show()
+        }
     }
 
 }
