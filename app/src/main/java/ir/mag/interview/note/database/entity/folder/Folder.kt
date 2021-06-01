@@ -2,7 +2,7 @@ package ir.mag.interview.note.database.entity.folder
 
 import androidx.annotation.NonNull
 import androidx.room.*
-import ir.mag.interview.note.database.entity.file.File
+import ir.mag.interview.note.data.model.file.File
 
 @Entity(tableName = "folders")
 class Folder(

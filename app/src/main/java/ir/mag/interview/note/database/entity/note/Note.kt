@@ -3,7 +3,7 @@ package ir.mag.interview.note.database.entity.note
 import androidx.annotation.NonNull
 import androidx.room.*
 import ir.mag.interview.note.database.converter.DateConverter
-import ir.mag.interview.note.database.entity.file.File
+import ir.mag.interview.note.data.model.file.File
 import java.util.*
 
 @Entity(tableName = "notes")

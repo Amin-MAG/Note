@@ -1,4 +1,4 @@
-package ir.mag.interview.note.viewmodel_factory
+package ir.mag.interview.note.viewmodel.factory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
