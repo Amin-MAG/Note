@@ -9,6 +9,9 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
 import ir.mag.interview.note.databinding.HeaderEditorActionBarBinding
@@ -17,6 +20,9 @@ import ir.mag.interview.note.ui.NotesMainActivity
 import ir.mag.interview.note.ui.NotesMainViewModel
 import ir.mag.interview.note.ui.editor.EditorHeaderFragment
 import ir.mag.interview.note.ui.editor.EditorViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import javax.inject.Inject
 
 class InFolderHeaderFragment
@@ -25,7 +31,7 @@ constructor(
     viewModelFactory: ViewModelProvider.Factory
 ) : Fragment() {
 
-    private val viewModel: NotesMainViewModel by viewModels {
+    private val viewModel: NotesViewModel by viewModels {
         viewModelFactory
     }
 
@@ -56,12 +62,35 @@ constructor(
         return binding.root
     }
 
+    @ExperimentalCoroutinesApi
     private fun setupUI() {
+        // bind view
+        viewModel.currentFolder.value?.let {
+            binding.inFolderHeaderTitle.text = it.name
+        }
 
-        
+        // setup on click listeners
+        binding.inFolderHeaderBack.setOnClickListener {
+            viewModel.currentFolder.value?.let {
+                viewModel.getParentFolder().observeOnce(this, Observer {
+                    it?.let {
+                        viewModel.changeFolder(it)
+                    }
+                })
+            }
+        }
     }
 
     companion object {
         private const val TAG = "Ui.InFolderHeader";
+    }
+
+    private fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
+        observe(lifecycleOwner, object : Observer<T> {
+            override fun onChanged(t: T?) {
+                observer.onChanged(t)
+                removeObserver(this)
+            }
+        })
     }
 }

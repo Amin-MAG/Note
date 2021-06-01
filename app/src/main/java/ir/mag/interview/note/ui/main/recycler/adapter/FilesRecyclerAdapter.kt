@@ -12,8 +12,12 @@ import ir.mag.interview.note.data.model.file.File
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
 import ir.mag.interview.note.databinding.FileViewHolderBinding
+import ir.mag.interview.note.ui.main.NotesViewModel
 
-class FilesRecyclerAdapter : RecyclerView.Adapter<FilesRecyclerAdapter.FileViewHolder>() {
+class FilesRecyclerAdapter
+constructor(
+    val notesViewModel: NotesViewModel
+) : RecyclerView.Adapter<FilesRecyclerAdapter.FileViewHolder>() {
 
     private lateinit var activity: Activity
 
@@ -38,7 +42,7 @@ class FilesRecyclerAdapter : RecyclerView.Adapter<FilesRecyclerAdapter.FileViewH
     }
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
-        Log.d(TAG, "onBindViewHolder: ")
+//        Log.d(TAG, "onBindViewHolder: ")
         holder.bind(files[position])
     }
 
@@ -50,7 +54,7 @@ class FilesRecyclerAdapter : RecyclerView.Adapter<FilesRecyclerAdapter.FileViewH
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(file: File) {
-            Log.d(TAG, "bind: ")
+//            Log.d(TAG, "bind: ")
 
             when (file.type) {
 
@@ -62,6 +66,12 @@ class FilesRecyclerAdapter : RecyclerView.Adapter<FilesRecyclerAdapter.FileViewH
                     binding.fileCardIconFrame.background =
                         ContextCompat.getDrawable(activity, R.drawable.circle_light_blue);
                     binding.fileCardIcon.setImageResource(R.drawable.ic_note)
+                    binding.fileCard.setOnClickListener {
+                        TODO("yet not implemented")
+                    }
+                    binding.fileCardOptionButton.setOnClickListener {
+                        TODO("yet not implemented")
+                    }
                 }
 
                 File.Types.FOLDER -> {
@@ -72,6 +82,14 @@ class FilesRecyclerAdapter : RecyclerView.Adapter<FilesRecyclerAdapter.FileViewH
                     binding.fileCardIconFrame.background =
                         ContextCompat.getDrawable(activity, R.drawable.circle_yellow);
                     binding.fileCardIcon.setImageResource(R.drawable.ic_folder)
+                    binding.fileCard.setOnClickListener {
+                        Log.d(TAG, "bind onclick card: ")
+                        notesViewModel.changeFolder(folder)
+                    }
+                    binding.fileCardOptionButton.setOnClickListener {
+                        Log.d(TAG, "bind onclick more button: ")
+                        TODO("yet not implemented")
+                    }
                 }
 
                 else -> throw UnsupportedOperationException("can not show this type of file")

@@ -17,6 +17,7 @@ import ir.mag.interview.note.ui.main.NotesHeaderFragment
 import ir.mag.interview.note.util.UiUtil
 import java.lang.UnsupportedOperationException
 import javax.inject.Inject
+import kotlin.math.log
 
 class NotesMainActivity : AppCompatActivity() {
 
@@ -74,11 +75,21 @@ class NotesMainActivity : AppCompatActivity() {
             it?.let {
 
                 when (it) {
-                    NoteRepository.Modes.BROWSER -> updateFragments(
-                        notesHeaderFragment,
-                        notesFragment
-                    )
+                    NoteRepository.Modes.BROWSER -> {
+                        Log.d(TAG, "setupUI: change to normal browser mode")
+                        updateFragments(
+                            notesHeaderFragment,
+                            notesFragment
+                        )
+                    }
 
+                    NoteRepository.Modes.IN_FOLDER_BROWSING -> {
+                        Log.d(TAG, "setupUI: change to in folder browser mode")
+                        updateFragments(
+                            inFolderHeaderFragment,
+                            notesFragment
+                        )
+                    }
                     NoteRepository.Modes.EDITOR -> updateFragments(
                         editorHeaderFragment,
                         editorFragment

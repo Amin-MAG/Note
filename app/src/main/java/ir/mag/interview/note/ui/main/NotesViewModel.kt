@@ -1,8 +1,7 @@
 package ir.mag.interview.note.ui.main
 
-import android.provider.ContactsContract
+import android.icu.text.CaseMap
 import android.util.Log
-import androidx.core.widget.ListViewAutoScrollHelper
 import androidx.lifecycle.*
 import ir.mag.interview.note.data.model.file.File
 import ir.mag.interview.note.data.repository.NoteRepository
@@ -84,7 +83,11 @@ constructor(
     }
 
     fun getRootFolder(): LiveData<Folder> {
-        return notesDB.getFolderById(ROOT_FOLDER_ID)
+        return notesDB.getFolderById(NoteRepository.ROOT_FOLDER_ID)
+    }
+
+    fun getParentFolder(): LiveData<Folder> {
+        return notesDB.getFolderById(currentFolder.value!!.parentFolderId!!)
     }
 
     fun addFolder(folder: Folder) {
@@ -133,8 +136,16 @@ constructor(
         }
     }
 
+
+    fun changeModeToInFolderBrowsing() {
+        noteRepository.changeMode(NoteRepository.Modes.IN_FOLDER_BROWSING)
+    }
+
+    fun changeModeToNormalBrowsing() {
+        noteRepository.changeMode(NoteRepository.Modes.BROWSER)
+    }
+
     companion object {
         private const val TAG = "ViewModel.Notes"
-        private const val ROOT_FOLDER_ID = 1L
     }
 }

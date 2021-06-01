@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
 import ir.mag.interview.note.data.model.file.File
+import ir.mag.interview.note.data.repository.NoteRepository
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
 import ir.mag.interview.note.databinding.FragmentNotesBinding
@@ -75,7 +76,10 @@ constructor(
         if (viewModel.currentFolder.value == null) {
             viewModel.getRootFolder().observeOnce(this, Observer {
                 it?.let { folder ->
-                    Log.d(TAG, "onCreateView current folder changed: ${folder.folderId}")
+                    Log.d(
+                        TAG,
+                        "onCreateView current folder changed root founded: ${folder.folderId}"
+                    )
                     viewModel.changeFolder(folder)
                     viewModel.setCurrentFilesSources()
                 }
@@ -85,6 +89,21 @@ constructor(
 
 
     private fun setupUI() {
+        viewModel.currentFolder.observe(this, Observer {
+            it?.let { folder ->
+                Log.d(TAG, "onCreateView current folder changed: ${folder.folderId}")
+
+                if (folder.folderId == NoteRepository.ROOT_FOLDER_ID) {
+                    viewModel.changeModeToNormalBrowsing()
+                } else {
+                    viewModel.changeModeToInFolderBrowsing()
+                }
+
+                viewModel.setCurrentFilesSources()
+            }
+        })
+
+
         // set adapter for files recycler and observe database
         binding.notesFilesList.adapter = filesRecyclerAdapter
         viewModel.currentFiles.observe(this, Observer {

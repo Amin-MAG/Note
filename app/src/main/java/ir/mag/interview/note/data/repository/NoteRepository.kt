@@ -13,7 +13,8 @@ constructor() {
 
     enum class Modes {
         EDITOR,
-        BROWSER
+        BROWSER,
+        IN_FOLDER_BROWSING
     }
 
     var mode: MutableLiveData<Modes> = MutableLiveData(Modes.BROWSER)
@@ -26,7 +27,7 @@ constructor() {
         private set
 
     fun changeMode(newMode: Modes) {
-        mode.postValue(newMode)
+        mode.value = newMode
     }
 
     fun changeCurrentNote(note: Note) {
@@ -39,6 +40,6 @@ constructor() {
 
     companion object {
         private const val TAG = "Repository.Notes"
-        private const val ROOT_FOLDER_ID = 1L
+        const val ROOT_FOLDER_ID = 1L
     }
 }
