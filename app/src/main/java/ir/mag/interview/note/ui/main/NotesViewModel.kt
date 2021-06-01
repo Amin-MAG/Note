@@ -2,12 +2,13 @@ package ir.mag.interview.note.ui.main
 
 import android.util.Log
 import androidx.lifecycle.*
-import ir.mag.interview.note.database.entity.file.File
+import ir.mag.interview.note.data.model.file.File
+import ir.mag.interview.note.data.repository.NoteRepository
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
 import ir.mag.interview.note.database.relation.FolderWithNotes
 import ir.mag.interview.note.database.relation.FolderWithSubFolders
-import ir.mag.interview.note.database.repository.NotesRepository
+import ir.mag.interview.note.database.repository.NotesDatabaseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*

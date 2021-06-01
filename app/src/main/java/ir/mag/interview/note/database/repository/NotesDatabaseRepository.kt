@@ -11,7 +11,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class NotesRepository
+class NotesDatabaseRepository
 @Inject
 constructor(
     private val noteDao: NoteDao,

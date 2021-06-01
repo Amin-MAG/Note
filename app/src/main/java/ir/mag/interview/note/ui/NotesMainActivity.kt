@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import ir.mag.interview.note.NoteApplication
+import ir.mag.interview.note.data.repository.NoteRepository
 import ir.mag.interview.note.databinding.ActivityNotesMainBinding
 import ir.mag.interview.note.di.notes.NotesComponent
 import ir.mag.interview.note.ui.editor.EditorFragment
