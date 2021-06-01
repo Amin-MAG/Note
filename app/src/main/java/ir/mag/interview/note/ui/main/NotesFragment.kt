@@ -10,6 +10,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
@@ -61,10 +63,24 @@ constructor(
         )
         binding.lifecycleOwner = this
 
+        observe()
         setupUI()
 
         // Inflate the layout for this fragment
         return binding.root
+    }
+
+
+    private fun observe() {
+        if (viewModel.currentFolder.value == null) {
+            viewModel.getRootFolder().observeOnce(this, Observer {
+                it?.let { folder ->
+                    Log.d(TAG, "onCreateView current folder changed: ${folder.folderId}")
+                    viewModel.changeFolder(folder)
+                    viewModel.setCurrentFilesSources()
+                }
+            })
+        }
     }
 
 

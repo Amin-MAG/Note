@@ -15,4 +15,7 @@ interface NoteDao {
     @Query("SELECT * FROM notes ORDER BY date DESC")
     fun readAll(): LiveData<List<Note>>
 
+    @Query("SELECT * FROM notes WHERE noteId= :noteId ORDER BY date DESC LIMIT 1")
+    fun selectById(noteId: Long): LiveData<Note>
+
 }

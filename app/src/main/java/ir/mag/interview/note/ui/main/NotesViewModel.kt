@@ -1,6 +1,8 @@
 package ir.mag.interview.note.ui.main
 
+import android.provider.ContactsContract
 import android.util.Log
+import androidx.core.widget.ListViewAutoScrollHelper
 import androidx.lifecycle.*
 import ir.mag.interview.note.data.model.file.File
 import ir.mag.interview.note.data.repository.NoteRepository
@@ -11,6 +13,7 @@ import ir.mag.interview.note.database.relation.FolderWithSubFolders
 import ir.mag.interview.note.database.repository.NotesDatabaseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.IllegalStateException
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -24,45 +27,64 @@ constructor(
 ) : ViewModel() {
 
 
-    var currentFolderId: MutableLiveData<Long> = noteRepository.currentFolderId
+    var currentFolder: LiveData<Folder> = noteRepository.currentFolder
     var currentFiles: MediatorLiveData<EnumMap<File.Types, List<File>>> = MediatorLiveData()
 
-    init {
+    fun changeFolder(folder: Folder) {
+        noteRepository.changeCurrentFolder(folder)
+    }
+
+    fun setCurrentFilesSources() {
         currentFiles.value = EnumMap(File.Types::class.java)
         currentFiles.value?.put(File.Types.FOLDER, ArrayList())
         currentFiles.value?.put(File.Types.NOTE, ArrayList())
+
         currentFiles.value?.let {
 
-            currentFiles.addSource(getFolderNotes()) { folder ->
+            currentFiles.addSource(getCurrentNotes()) { folder ->
                 folder?.notes?.let { notes ->
-//                    Log.d(TAG, "init view model notes: $notes")
                     it[File.Types.NOTE] = notes
                     currentFiles.postValue(it)
                 }
             }
 
-            currentFiles.addSource(getFolderSubFolders()) { folder ->
+            currentFiles.addSource(getCurrentSubFolders()) { folder ->
                 folder?.subFolders?.let { folders ->
-//                    Log.d(TAG, "init view model folders: $folders")
-                    it.put(File.Types.FOLDER, folders)
+                    it[File.Types.FOLDER] = folders
                     currentFiles.postValue(it)
                 }
             }
-
         }
     }
 
     fun goToEditPage(noteId: Long) {
-        noteRepository.changeCurrentNote(noteId)
+        val note = notesDB.getNoteById(noteId)
+        if (note.value == null) {
+            throw IllegalStateException("can not find the note !")
+        }
+
+        noteRepository.changeCurrentNote(note.value!!)
         noteRepository.changeMode(NoteRepository.Modes.EDITOR)
     }
 
-    private fun getFolderNotes(): LiveData<FolderWithNotes> {
-        return notesDB.getFolderNotes(currentFolderId.value!!)
+    private fun getCurrentNotes(): LiveData<FolderWithNotes> {
+        return getFolderByIdWithNotes(currentFolder.value!!.folderId)
     }
 
-    private fun getFolderSubFolders(): LiveData<FolderWithSubFolders> {
-        return notesDB.getFolderSubFolders(currentFolderId.value!!)
+    private fun getFolderByIdWithNotes(folderId: Long): LiveData<FolderWithNotes> {
+        return notesDB.getFolderByIdWithNotes(folderId)
+    }
+
+    private fun getCurrentSubFolders(): LiveData<FolderWithSubFolders> {
+        return getFolderByIdWithSubFolders(currentFolder.value!!.folderId)
+    }
+
+    private fun getFolderByIdWithSubFolders(folderId: Long): LiveData<FolderWithSubFolders> {
+        return notesDB.getFolderSubFolders(folderId)
+    }
+
+    fun getRootFolder(): LiveData<Folder> {
+        return notesDB.getFolderById(ROOT_FOLDER_ID)
     }
 
     fun addFolder(folder: Folder) {
@@ -78,12 +100,12 @@ constructor(
     }
 
     fun addUntitledNote() {
-        currentFolderId.value?.let {
+        currentFolder.value?.let {
             Log.d(
                 TAG, "addUntitledNote: ${
                 Note(
                     0,
-                    it,
+                    it.folderId,
                     "عنوان نامشخص",
                     "",
                     Date()
@@ -92,7 +114,7 @@ constructor(
             addNote(
                 Note(
                     0,
-                    it,
+                    it.folderId,
                     "عنوان نامشخص",
                     "",
                     Date()
@@ -102,9 +124,12 @@ constructor(
     }
 
     fun addUntitledFolder() {
-        currentFolderId.value?.let {
-            Log.d(TAG, "addUntitledFolder: ${Folder(0, it, "پوشه بدون اسم").parentFolderId}")
-            addFolder(Folder(0, it, "پوشه بدون اسم"))
+        currentFolder.value?.let {
+            Log.d(
+                TAG,
+                "addUntitledFolder: ${Folder(0, it.folderId, "پوشه بدون اسم").parentFolderId}"
+            )
+            addFolder(Folder(0, it.folderId, "پوشه بدون اسم"))
         }
     }
 

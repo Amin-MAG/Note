@@ -1,5 +1,6 @@
 package ir.mag.interview.note.database.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.folder.FolderDao
@@ -29,12 +30,27 @@ constructor(
         folderDao.insert(folder)
     }
 
-    fun getFolderNotes(folderId: Long): LiveData<FolderWithNotes> {
+    fun getFolderByIdWithNotes(folderId: Long): LiveData<FolderWithNotes> {
+        val f = folderDao.readByIdWithNotes(folderId)
+        Log.d(TAG, "getFolderByIdWithNotes: ${f.value.toString()}")
         return folderDao.readByIdWithNotes(folderId)
+    }
+
+    fun getFolderById(folderId: Long): LiveData<Folder> {
+        val f = folderDao.selectById(folderId)
+        Log.d(TAG, "getFolderByIdWithNotes: ${f.value.toString()}")
+        return folderDao.selectById(folderId)
     }
 
     fun getFolderSubFolders(folderId: Long): LiveData<FolderWithSubFolders> {
         return folderDao.readByIdWithSubFolders(folderId)
     }
 
+    fun getNoteById(noteId: Long): LiveData<Note> {
+        return noteDao.selectById(noteId)
+    }
+
+    companion object {
+        const val TAG: String = "Repository.NotesDatabase"
+    }
 }
