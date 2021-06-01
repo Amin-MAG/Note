@@ -2,4 +2,8 @@
     <string name="app_name">Note</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="cancel">انصراف</string>
+    <string name="untitled">بدون عنوان</string>
+    <string name="note_editor_hint">متن خود را اینجا بنویسید.</string>
+    <string name="notes">یادداشت ها</string>
 </resources>
