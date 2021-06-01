@@ -2,6 +2,7 @@ package ir.mag.interview.note.database.entity.folder
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import ir.mag.interview.note.database.entity.note.Note
 import ir.mag.interview.note.database.relation.FolderWithNotes
 import ir.mag.interview.note.database.relation.FolderWithSubFolders
 
@@ -26,5 +27,11 @@ interface FolderDao {
 
     @Query("SELECT * FROM folders WHERE folderId = :folderId ORDER BY folderId DESC")
     fun readByIdWithSubFolders(folderId: Long): LiveData<FolderWithSubFolders>
+
+    @Update
+    suspend fun update(folder: Folder);
+
+    @Delete
+    suspend fun delete(folder: Folder)
 
 }

@@ -135,10 +135,10 @@ constructor(
         }
 
         binding.fabNewFolder.setOnClickListener {
-            CommonDialog.Builder(this)
-                .setTitle("پوشه جدید")
-                .setDescription("برای پوشه خود عنوان بنویسید.")
-                .setConfirmText("ایجاد پوشه")
+            CommonDialog.Builder(this, requireContext())
+                .setTitle(getString(R.string.new_folder))
+                .setDescription(getString(R.string.new_folder_desctiption))
+                .setConfirmText(getString(R.string.create_new_folder))
                 .setListener(object : CommonDialog.OnHandle {
                     override fun onCancel(
                         dialog: AlertDialog,
@@ -157,7 +157,7 @@ constructor(
                     }
                 })
                 .setHasPrompt(true)
-                .setPromptHint("عنوان پوشه")
+                .setPromptHint(getString(R.string.folder_title))
                 .build()
                 .show()
         }

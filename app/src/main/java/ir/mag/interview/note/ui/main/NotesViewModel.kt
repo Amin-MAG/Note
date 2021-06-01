@@ -37,6 +37,10 @@ constructor(
         noteRepository.changeCurrentFolder(folder)
     }
 
+    fun postChangeFolder(folder: Folder) {
+        noteRepository.postChangeCurrentFolder(folder)
+    }
+
     fun setCurrentFilesSources() {
         currentFiles.value = EnumMap(File.Types::class.java)
         currentFiles.value?.put(File.Types.FOLDER, ArrayList())
@@ -109,6 +113,18 @@ constructor(
                 noteRepository.currentNote.postValue(note)
             }
         }
+    }
+
+    suspend fun updateFolder(folder: Folder) {
+        notesDB.updateFolder(folder)
+    }
+
+    suspend fun deleteFolder(folder: Folder) {
+        notesDB.deleteFolder(folder)
+    }
+
+    suspend fun deleteNote(note: Note) {
+        notesDB.deleteNote(note)
     }
 
     fun changeModeToInFolderBrowsing() {
