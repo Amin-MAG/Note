@@ -49,6 +49,8 @@ class NotesMainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        supportActionBar?.hide()
+
         setupUI()
     }
 
