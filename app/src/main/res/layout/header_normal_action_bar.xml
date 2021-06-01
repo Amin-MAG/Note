@@ -5,12 +5,13 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_gravity="right"
+        android:background="@color/white"
         android:gravity="right|center_vertical"
         android:paddingTop="14dp"
         android:paddingRight="16dp"
         android:paddingBottom="14dp"
         android:text="@string/notes"
-        android:textSize="18dp"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="18dp" />
 
 </layout>

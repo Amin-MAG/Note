@@ -11,6 +11,7 @@ import ir.mag.interview.note.databinding.ActivityNotesMainBinding
 import ir.mag.interview.note.di.notes.NotesComponent
 import ir.mag.interview.note.ui.editor.EditorFragment
 import ir.mag.interview.note.ui.editor.EditorHeaderFragment
+import ir.mag.interview.note.ui.main.InFolderHeaderFragment
 import ir.mag.interview.note.ui.main.NotesFragment
 import ir.mag.interview.note.ui.main.NotesHeaderFragment
 import ir.mag.interview.note.util.UiUtil
@@ -33,6 +34,7 @@ class NotesMainActivity : AppCompatActivity() {
     private lateinit var notesFragment: Fragment
     private lateinit var editorFragment: Fragment
     private lateinit var notesHeaderFragment: Fragment
+    private lateinit var inFolderHeaderFragment: Fragment
     private lateinit var editorHeaderFragment: Fragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +61,8 @@ class NotesMainActivity : AppCompatActivity() {
         // headers
         notesHeaderFragment =
             fragmentFactory.instantiate(classLoader, NotesHeaderFragment::class.java.name)
+        inFolderHeaderFragment =
+            fragmentFactory.instantiate(classLoader, InFolderHeaderFragment::class.java.name)
         editorHeaderFragment =
             fragmentFactory.instantiate(classLoader, EditorHeaderFragment::class.java.name)
     }
