@@ -6,8 +6,10 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import ir.mag.interview.note.di.notes.keys.NotesViewModelKey
+import ir.mag.interview.note.ui.NotesMainViewModel
+import ir.mag.interview.note.ui.editor.EditorViewModel
 import ir.mag.interview.note.ui.main.NotesViewModel
-import ir.mag.interview.note.viewmodel_factory.NotesViewModelFactory
+import ir.mag.interview.note.viewmodel.factory.NotesViewModelFactory
 
 @Module
 abstract class NotesViewModelModule {
@@ -21,4 +23,10 @@ abstract class NotesViewModelModule {
     @IntoMap
     @NotesViewModelKey(NotesViewModel::class)
     abstract fun bindNotesViewModel(notesViewModel: NotesViewModel): ViewModel
+
+    @NotesScope
+    @Binds
+    @IntoMap
+    @NotesViewModelKey(EditorViewModel::class)
+    abstract fun bindEditorViewModel(editorViewModel: EditorViewModel): ViewModel
 }

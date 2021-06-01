@@ -6,14 +6,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
-import ir.mag.interview.note.databinding.FragmentNotesBinding
+import ir.mag.interview.note.databinding.HeaderEditorActionBarBinding
 import ir.mag.interview.note.ui.NotesMainActivity
 import ir.mag.interview.note.ui.main.NotesViewModel
-import ir.mag.interview.note.ui.main.recycler.adapter.FilesRecyclerAdapter
 import javax.inject.Inject
 
 class EditorHeaderFragment
@@ -22,9 +22,11 @@ constructor(
     viewModelFactory: ViewModelProvider.Factory
 ) : Fragment() {
 
-    private val viewModel: NotesViewModel by viewModels {
+    private val viewModel: EditorViewModel by viewModels {
         viewModelFactory
     }
+
+    private lateinit var binding: HeaderEditorActionBarBinding
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -37,8 +39,25 @@ constructor(
     ): View? {
         Log.d(TAG, "onCreateView: ")
 
+        binding = DataBindingUtil.inflate(
+            LayoutInflater.from(activity),
+            R.layout.header_editor_action_bar,
+            container,
+            false
+        )
+        binding.lifecycleOwner = this
+
+        setupUI()
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.editor_action_bar, container, false)
+        return binding.root
+    }
+
+    private fun setupUI() {
+        binding.editorHeaderBack.setOnClickListener {
+            viewModel.goBackToBrowser()
+        }
+
     }
 
     companion object {
