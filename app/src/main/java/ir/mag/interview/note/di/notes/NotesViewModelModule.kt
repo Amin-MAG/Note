@@ -29,4 +29,10 @@ abstract class NotesViewModelModule {
     @IntoMap
     @NotesViewModelKey(EditorViewModel::class)
     abstract fun bindEditorViewModel(editorViewModel: EditorViewModel): ViewModel
+
+    @NotesScope
+    @Binds
+    @IntoMap
+    @NotesViewModelKey(NotesMainViewModel::class)
+    abstract fun bindNotesMainViewModel(notesViewModel: NotesMainViewModel): ViewModel
 }

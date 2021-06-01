@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import ir.mag.interview.note.NoteApplication
 import ir.mag.interview.note.data.repository.NoteRepository
 import ir.mag.interview.note.databinding.ActivityNotesMainBinding
@@ -13,6 +14,7 @@ import ir.mag.interview.note.ui.editor.EditorHeaderFragment
 import ir.mag.interview.note.ui.main.NotesFragment
 import ir.mag.interview.note.ui.main.NotesHeaderFragment
 import ir.mag.interview.note.util.UiUtil
+import java.lang.UnsupportedOperationException
 import javax.inject.Inject
 
 class NotesMainActivity : AppCompatActivity() {
@@ -21,6 +23,9 @@ class NotesMainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var fragmentFactory: NotesFragmentFactory
+
+    @Inject
+    lateinit var notesMainViewModel: NotesMainViewModel
 
     lateinit var binding: ActivityNotesMainBinding
 
@@ -34,44 +39,72 @@ class NotesMainActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate: ")
         inject()
 
-        // main fragments
-        notesFragment =
-            fragmentFactory.instantiate(classLoader, NotesFragment::class.java.name)
-        editorFragment =
-            fragmentFactory.instantiate(classLoader, EditorFragment::class.java.name)
-        // headers
-        notesHeaderFragment =
-            fragmentFactory.instantiate(classLoader, NotesHeaderFragment::class.java.name)
-        editorHeaderFragment =
-            fragmentFactory.instantiate(classLoader, EditorHeaderFragment::class.java.name)
+        provideFragments()
 
         binding = ActivityNotesMainBinding.inflate(layoutInflater)
 
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        UiUtil.changeFragment(
-            supportFragmentManager,
-            notesHeaderFragment,
-            binding.header.id,
-            true,
-            NotesHeaderFragment::class.java.name
-        )
-
         setupUI()
+    }
+
+    private fun provideFragments() {
+        // main fragments
+        notesFragment =
+            fragmentFactory.instantiate(classLoader, NotesFragment::class.java.name)
+        editorFragment =
+            fragmentFactory.instantiate(classLoader, EditorFragment::class.java.name)
+
+        // headers
+        notesHeaderFragment =
+            fragmentFactory.instantiate(classLoader, NotesHeaderFragment::class.java.name)
+        editorHeaderFragment =
+            fragmentFactory.instantiate(classLoader, EditorHeaderFragment::class.java.name)
     }
 
     private fun setupUI() {
         Log.d(TAG, "setupUI: ")
-        UiUtil.changeFragment(
-            supportFragmentManager,
-            notesFragment,
-            binding.mainFrameLayout.id,
-            true,
-            notesFragment::class.java.name
-        )
+
+        notesMainViewModel.mode.observe(this, Observer {
+            it?.let {
+
+                when (it) {
+                    NoteRepository.Modes.BROWSER -> updateFragments(
+                        notesHeaderFragment,
+                        notesFragment
+                    )
+
+                    NoteRepository.Modes.EDITOR -> updateFragments(
+                        editorHeaderFragment,
+                        editorFragment
+                    )
+
+                    else -> UnsupportedOperationException("this kind of mode is not supported")
+                }
+            }
+        })
+
     }
 
+    fun updateFragments(header: Fragment, content: Fragment) {
+        // header fragment
+        UiUtil.changeFragment(
+            supportFragmentManager,
+            header,
+            binding.header.id,
+            true,
+            header::class.java.name
+        )
+        // content fragment
+        UiUtil.changeFragment(
+            supportFragmentManager,
+            content,
+            binding.mainFrameLayout.id,
+            true,
+            content::class.java.name
+        )
+    }
 
     private fun inject() {
         notesComponent =
