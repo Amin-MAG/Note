@@ -34,6 +34,10 @@ constructor() {
         currentNote.value = note
     }
 
+    fun postChangeCurrentFolder(folder: Folder) {
+        currentFolder.postValue(folder)
+    }
+
     fun changeCurrentFolder(folder: Folder) {
         currentFolder.value = folder
     }

@@ -48,7 +48,7 @@ class CommonDialog private constructor(
         fun setDescription(description: String) = apply { this.description = description }
         fun setHasPrompt(hasPrompt: Boolean) = apply { this.hasPrompt = hasPrompt }
         fun setPromptHint(promptHint: String) = apply { this.promptHint = promptHint }
-        fun setPromptText(text: Editable) = apply { this.promptText = promptText }
+        fun setPromptText(text: Editable) = apply { this.promptText = text }
         fun setListener(listener: OnHandle) = apply { this.listener = listener }
         fun setCancelText(cancelText: String) = apply { this.cancelText = cancelText }
         fun setConfirmText(confirmText: String) = apply { this.confirmText = confirmText }

@@ -37,6 +37,10 @@ constructor(
         noteRepository.changeCurrentFolder(folder)
     }
 
+    fun postChangeFolder(folder: Folder) {
+        noteRepository.postChangeCurrentFolder(folder)
+    }
+
     fun setCurrentFilesSources() {
         currentFiles.value = EnumMap(File.Types::class.java)
         currentFiles.value?.put(File.Types.FOLDER, ArrayList())
