@@ -14,17 +14,17 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 
 class NotesViewModel
 @Inject
 constructor(
-    private val notesRepository: NotesRepository
+    private val noteRepository: NoteRepository,
+    private val notesDB: NotesDatabaseRepository
 ) : ViewModel() {
 
 
-    var currentFolderId: MutableLiveData<Long> = MutableLiveData(ROOT_FOLDER_ID)
+    var currentFolderId: MutableLiveData<Long> = noteRepository.currentFolderId
     var currentFiles: MediatorLiveData<EnumMap<File.Types, List<File>>> = MediatorLiveData()
 
     init {
@@ -52,23 +52,28 @@ constructor(
         }
     }
 
+    fun goToEditPage(noteId: Long) {
+        noteRepository.changeCurrentNote(noteId)
+        noteRepository.changeMode(NoteRepository.Modes.EDITOR)
+    }
+
     private fun getFolderNotes(): LiveData<FolderWithNotes> {
-        return notesRepository.getFolderNotes(currentFolderId.value!!)
+        return notesDB.getFolderNotes(currentFolderId.value!!)
     }
 
     private fun getFolderSubFolders(): LiveData<FolderWithSubFolders> {
-        return notesRepository.getFolderSubFolders(currentFolderId.value!!)
+        return notesDB.getFolderSubFolders(currentFolderId.value!!)
     }
 
     fun addFolder(folder: Folder) {
         viewModelScope.launch(Dispatchers.IO) {
-            notesRepository.addFolder(folder)
+            notesDB.addFolder(folder)
         }
     }
 
     private fun addNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
-            notesRepository.addNote(note)
+            notesDB.addNote(note)
         }
     }
 

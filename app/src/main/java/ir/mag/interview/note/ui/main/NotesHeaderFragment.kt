@@ -7,8 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
 import ir.mag.interview.note.ui.NotesMainActivity
 import javax.inject.Inject
@@ -29,7 +27,7 @@ constructor() : Fragment() {
         Log.d(TAG, "onCreateView: ")
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.normal_action_bar, container, false)
+        return inflater.inflate(R.layout.header_normal_action_bar, container, false)
     }
 
     companion object {

@@ -89,6 +89,7 @@ constructor(
 
         // floating action button
         binding.fabNewNote.setOnClickListener {
+            viewModel.goToEditPage(2)
 //            viewModel.addUntitledNote()
         }
         binding.fabNewFolder.setOnClickListener {
