@@ -4,7 +4,9 @@ import android.content.res.Resources
 import androidx.fragment.app.FragmentFactory
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.di.notes.NotesScope
+import ir.mag.interview.note.ui.editor.EditorFragment
 import ir.mag.interview.note.ui.main.NotesFragment
+import ir.mag.interview.note.ui.main.NotesHeaderFragment
 import javax.inject.Inject
 
 
@@ -20,14 +22,14 @@ constructor(
 
         when (className) {
 
-            NotesFragment::class.java.name -> {
-                NotesFragment(viewModelFactory)
-            }
+            NotesFragment::class.java.name -> NotesFragment(viewModelFactory)
+
+            EditorFragment::class.java.name -> EditorFragment(viewModelFactory)
 
 
-            else -> {
-                throw Resources.NotFoundException("No such fragment $className")
-            }
+            NotesHeaderFragment::class.java.name -> NotesHeaderFragment()
+
+            else -> throw Resources.NotFoundException("No such fragment $className")
 
         }
 

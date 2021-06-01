@@ -5,9 +5,9 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import ir.mag.interview.note.NoteApplication
-import ir.mag.interview.note.R
 import ir.mag.interview.note.databinding.ActivityNotesMainBinding
 import ir.mag.interview.note.di.notes.NotesComponent
+import ir.mag.interview.note.ui.editor.EditorFragment
 import ir.mag.interview.note.ui.main.NotesFragment
 import ir.mag.interview.note.ui.main.NotesHeaderFragment
 import ir.mag.interview.note.util.UiUtil
@@ -24,13 +24,19 @@ class NotesMainActivity : AppCompatActivity() {
 
     // Fragments
     private lateinit var notesFragment: Fragment
+    private lateinit var editorFragment: Fragment
     private lateinit var notesHeaderFragment: Fragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate: ")
         inject()
 
-        notesFragment = fragmentFactory.instantiate(classLoader, NotesFragment::class.java.name)
+        // main fragments
+        notesFragment =
+            fragmentFactory.instantiate(classLoader, NotesFragment::class.java.name)
+        editorFragment =
+            fragmentFactory.instantiate(classLoader, EditorFragment::class.java.name)
+        // headers
         notesHeaderFragment =
             fragmentFactory.instantiate(classLoader, NotesHeaderFragment::class.java.name)
 

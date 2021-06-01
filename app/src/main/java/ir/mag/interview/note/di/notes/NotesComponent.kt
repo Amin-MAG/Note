@@ -2,6 +2,7 @@ package ir.mag.interview.note.di.notes
 
 import dagger.Subcomponent
 import ir.mag.interview.note.ui.NotesMainActivity
+import ir.mag.interview.note.ui.editor.EditorFragment
 import ir.mag.interview.note.ui.main.NotesFragment
 import ir.mag.interview.note.ui.main.NotesHeaderFragment
 
@@ -24,4 +25,5 @@ interface NotesComponent {
     fun inject(activity: NotesMainActivity)
     fun inject(fragment: NotesFragment)
     fun inject(fragment: NotesHeaderFragment)
+    fun inject(fragment: EditorFragment)
 }
