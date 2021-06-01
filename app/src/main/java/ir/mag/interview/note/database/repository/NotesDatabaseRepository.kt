@@ -31,14 +31,10 @@ constructor(
     }
 
     fun getFolderByIdWithNotes(folderId: Long): LiveData<FolderWithNotes> {
-        val f = folderDao.readByIdWithNotes(folderId)
-        Log.d(TAG, "getFolderByIdWithNotes: ${f.value.toString()}")
         return folderDao.readByIdWithNotes(folderId)
     }
 
     fun getFolderById(folderId: Long): LiveData<Folder> {
-        val f = folderDao.selectById(folderId)
-        Log.d(TAG, "getFolderByIdWithNotes: ${f.value.toString()}")
         return folderDao.selectById(folderId)
     }
 

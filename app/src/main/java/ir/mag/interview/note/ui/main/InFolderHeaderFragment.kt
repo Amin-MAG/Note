@@ -62,12 +62,11 @@ constructor(
         return binding.root
     }
 
-    @ExperimentalCoroutinesApi
     private fun setupUI() {
         // bind view
-        viewModel.currentFolder.value?.let {
+        viewModel.currentFolder.observe(this, Observer {
             binding.inFolderHeaderTitle.text = it.name
-        }
+        })
 
         // setup on click listeners
         binding.inFolderHeaderBack.setOnClickListener {

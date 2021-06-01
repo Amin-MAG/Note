@@ -11,6 +11,7 @@ import ir.mag.interview.note.database.relation.FolderWithNotes
 import ir.mag.interview.note.database.relation.FolderWithSubFolders
 import ir.mag.interview.note.database.repository.NotesDatabaseRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import java.lang.IllegalStateException
 import java.util.*
@@ -43,14 +44,14 @@ constructor(
             currentFiles.addSource(getCurrentNotes()) { folder ->
                 folder?.notes?.let { notes ->
                     it[File.Types.NOTE] = notes
-                    currentFiles.postValue(it)
+                    currentFiles.value = it
                 }
             }
 
             currentFiles.addSource(getCurrentSubFolders()) { folder ->
                 folder?.subFolders?.let { folders ->
                     it[File.Types.FOLDER] = folders
-                    currentFiles.postValue(it)
+                    currentFiles.value = it
                 }
             }
         }
@@ -90,9 +91,15 @@ constructor(
         return notesDB.getFolderById(currentFolder.value!!.parentFolderId!!)
     }
 
-    fun addFolder(folder: Folder) {
-        viewModelScope.launch(Dispatchers.IO) {
-            notesDB.addFolder(folder)
+    fun addFolder(folderName: String) {
+        currentFolder.value?.let { folder ->
+            viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+                Log.d(TAG, "addFolder: ${currentFolder.value!!.folderId}")
+                Log.d(TAG, "addFolder: ${currentFolder.value!!.parentFolderId}")
+                Log.d(TAG, "addFolder: ${currentFolder.value!!.name}")
+                Log.d(TAG, "addFolder: ----------------------------------")
+                notesDB.addFolder(Folder(0, folder.folderId, folderName))
+            }
         }
     }
 
@@ -123,16 +130,6 @@ constructor(
                     Date()
                 )
             )
-        }
-    }
-
-    fun addUntitledFolder() {
-        currentFolder.value?.let {
-            Log.d(
-                TAG,
-                "addUntitledFolder: ${Folder(0, it.folderId, "پوشه بدون اسم").parentFolderId}"
-            )
-            addFolder(Folder(0, it.folderId, "پوشه بدون اسم"))
         }
     }
 

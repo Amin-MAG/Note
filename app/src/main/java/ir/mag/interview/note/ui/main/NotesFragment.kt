@@ -19,11 +19,13 @@ import ir.mag.interview.note.data.model.file.File
 import ir.mag.interview.note.data.repository.NoteRepository
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
+import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
 import ir.mag.interview.note.databinding.FragmentNotesBinding
 import ir.mag.interview.note.ui.NotesMainActivity
 import ir.mag.interview.note.ui.main.dialog.CommonDialog
 import ir.mag.interview.note.ui.main.recycler.adapter.FilesRecyclerAdapter
 import javax.inject.Inject
+import kotlin.math.log
 
 /**
  * A simple [Fragment] subclass.
@@ -133,11 +135,19 @@ constructor(
                 .setDescription("برای پوشه خود عنوان بنویسید.")
                 .setConfirmText("ایجاد پوشه")
                 .setListener(object : CommonDialog.OnHandle {
-                    override fun onCancel(dialog: AlertDialog) {
+                    override fun onCancel(
+                        dialog: AlertDialog,
+                        dialogBinding: FragmentDialogCommonBinding
+                    ) {
                         dialog.dismiss()
                     }
 
-                    override fun onConfirm(dialog: AlertDialog) {
+                    override fun onConfirm(
+                        dialog: AlertDialog,
+                        dialogBinding: FragmentDialogCommonBinding
+                    ) {
+                        Log.d(TAG, "onConfirm: ${dialogBinding.commonDialogTextField.text}")
+                        viewModel.addFolder(dialogBinding.commonDialogTextField.text.toString())
                         dialog.dismiss()
                     }
                 })
@@ -145,7 +155,6 @@ constructor(
                 .setPromptHint("عنوان پوشه")
                 .build()
                 .show()
-//            viewModel.addUntitledFolder()
         }
     }
 

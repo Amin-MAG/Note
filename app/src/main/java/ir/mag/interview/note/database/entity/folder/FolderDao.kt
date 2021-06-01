@@ -8,9 +8,6 @@ import ir.mag.interview.note.database.relation.FolderWithSubFolders
 @Dao
 interface FolderDao {
 
-    // Initial
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun initInsert(folder: Folder)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(folder: Folder)
