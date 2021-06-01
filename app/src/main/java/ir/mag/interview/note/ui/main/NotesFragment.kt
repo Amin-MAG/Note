@@ -10,17 +10,22 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
 import ir.mag.interview.note.data.model.file.File
+import ir.mag.interview.note.data.repository.NoteRepository
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
+import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
 import ir.mag.interview.note.databinding.FragmentNotesBinding
 import ir.mag.interview.note.ui.NotesMainActivity
 import ir.mag.interview.note.ui.main.dialog.CommonDialog
 import ir.mag.interview.note.ui.main.recycler.adapter.FilesRecyclerAdapter
 import javax.inject.Inject
+import kotlin.math.log
 
 /**
  * A simple [Fragment] subclass.
@@ -61,6 +66,7 @@ constructor(
         )
         binding.lifecycleOwner = this
 
+        observe()
         setupUI()
 
         // Inflate the layout for this fragment
@@ -68,7 +74,38 @@ constructor(
     }
 
 
+    private fun observe() {
+        if (viewModel.currentFolder.value == null) {
+            viewModel.getRootFolder().observeOnce(this, Observer {
+                it?.let { folder ->
+                    Log.d(
+                        TAG,
+                        "onCreateView current folder changed root founded: ${folder.folderId}"
+                    )
+                    viewModel.changeFolder(folder)
+                    viewModel.setCurrentFilesSources()
+                }
+            })
+        }
+    }
+
+
     private fun setupUI() {
+        viewModel.currentFolder.observe(this, Observer {
+            it?.let { folder ->
+                Log.d(TAG, "onCreateView current folder changed: ${folder.folderId}")
+
+                if (folder.folderId == NoteRepository.ROOT_FOLDER_ID) {
+                    viewModel.changeModeToNormalBrowsing()
+                } else {
+                    viewModel.changeModeToInFolderBrowsing()
+                }
+
+                viewModel.setCurrentFilesSources()
+            }
+        })
+
+
         // set adapter for files recycler and observe database
         binding.notesFilesList.adapter = filesRecyclerAdapter
         viewModel.currentFiles.observe(this, Observer {
@@ -89,20 +126,33 @@ constructor(
 
         // floating action button
         binding.fabNewNote.setOnClickListener {
-            viewModel.goToEditPage(2)
-//            viewModel.addUntitledNote()
+            viewModel.addNote(resources.getString(R.string.untitled))
+            viewModel.currentNote.observeOnce(this, Observer {
+                it?.let {
+                    viewModel.goToEditPage(it)
+                }
+            })
         }
+
         binding.fabNewFolder.setOnClickListener {
             CommonDialog.Builder(this)
                 .setTitle("پوشه جدید")
                 .setDescription("برای پوشه خود عنوان بنویسید.")
                 .setConfirmText("ایجاد پوشه")
                 .setListener(object : CommonDialog.OnHandle {
-                    override fun onCancel(dialog: AlertDialog) {
+                    override fun onCancel(
+                        dialog: AlertDialog,
+                        dialogBinding: FragmentDialogCommonBinding
+                    ) {
                         dialog.dismiss()
                     }
 
-                    override fun onConfirm(dialog: AlertDialog) {
+                    override fun onConfirm(
+                        dialog: AlertDialog,
+                        dialogBinding: FragmentDialogCommonBinding
+                    ) {
+                        Log.d(TAG, "onConfirm: ${dialogBinding.commonDialogTextField.text}")
+                        viewModel.addFolder(dialogBinding.commonDialogTextField.text.toString())
                         dialog.dismiss()
                     }
                 })
@@ -110,7 +160,6 @@ constructor(
                 .setPromptHint("عنوان پوشه")
                 .build()
                 .show()
-//            viewModel.addUntitledFolder()
         }
     }
 
@@ -141,5 +190,15 @@ constructor(
 
     companion object {
         private const val TAG = "Ui.NotesFragment";
+    }
+
+
+    private fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
+        observe(lifecycleOwner, object : Observer<T> {
+            override fun onChanged(t: T?) {
+                observer.onChanged(t)
+                removeObserver(this)
+            }
+        })
     }
 }

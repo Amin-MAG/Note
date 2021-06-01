@@ -1,10 +1,8 @@
 package ir.mag.interview.note.data.repository
 
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import ir.mag.interview.note.data.model.file.File
-import ir.mag.interview.note.ui.main.NotesViewModel
-import java.util.*
+import ir.mag.interview.note.database.entity.folder.Folder
+import ir.mag.interview.note.database.entity.note.Note
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,28 +13,33 @@ constructor() {
 
     enum class Modes {
         EDITOR,
-        BROWSER
+        BROWSER,
+        IN_FOLDER_BROWSING
     }
 
     var mode: MutableLiveData<Modes> = MutableLiveData(Modes.BROWSER)
         private set
 
-    var currentNoteId: MutableLiveData<Long> = MutableLiveData()
+    var currentNote: MutableLiveData<Note> = MutableLiveData()
         private set
 
-    var currentFolderId: MutableLiveData<Long> = MutableLiveData(ROOT_FOLDER_ID)
+    var currentFolder: MutableLiveData<Folder> = MutableLiveData()
         private set
 
     fun changeMode(newMode: Modes) {
-        mode.postValue(newMode)
+        mode.value = newMode
     }
 
-    fun changeCurrentNote(noteId: Long) {
-        currentNoteId.postValue(noteId)
+    fun changeCurrentNote(note: Note) {
+        currentNote.value = note
+    }
+
+    fun changeCurrentFolder(folder: Folder) {
+        currentFolder.value = folder
     }
 
     companion object {
         private const val TAG = "Repository.Notes"
-        private const val ROOT_FOLDER_ID = 1L
+        const val ROOT_FOLDER_ID = 1L
     }
 }

@@ -1,5 +1,7 @@
 package ir.mag.interview.note.ui.main
 
+import android.icu.text.CaseMap
+import android.provider.ContactsContract
 import android.util.Log
 import androidx.lifecycle.*
 import ir.mag.interview.note.data.model.file.File
@@ -10,10 +12,13 @@ import ir.mag.interview.note.database.relation.FolderWithNotes
 import ir.mag.interview.note.database.relation.FolderWithSubFolders
 import ir.mag.interview.note.database.repository.NotesDatabaseRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import java.lang.IllegalStateException
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
+import kotlin.math.log
 
 
 class NotesViewModel
@@ -24,92 +29,97 @@ constructor(
 ) : ViewModel() {
 
 
-    var currentFolderId: MutableLiveData<Long> = noteRepository.currentFolderId
+    var currentFolder: LiveData<Folder> = noteRepository.currentFolder
+    var currentNote: LiveData<Note> = noteRepository.currentNote
     var currentFiles: MediatorLiveData<EnumMap<File.Types, List<File>>> = MediatorLiveData()
 
-    init {
+    fun changeFolder(folder: Folder) {
+        noteRepository.changeCurrentFolder(folder)
+    }
+
+    fun setCurrentFilesSources() {
         currentFiles.value = EnumMap(File.Types::class.java)
         currentFiles.value?.put(File.Types.FOLDER, ArrayList())
         currentFiles.value?.put(File.Types.NOTE, ArrayList())
+
         currentFiles.value?.let {
 
-            currentFiles.addSource(getFolderNotes()) { folder ->
+            currentFiles.addSource(getCurrentNotes()) { folder ->
                 folder?.notes?.let { notes ->
-//                    Log.d(TAG, "init view model notes: $notes")
                     it[File.Types.NOTE] = notes
-                    currentFiles.postValue(it)
+                    currentFiles.value = it
                 }
             }
 
-            currentFiles.addSource(getFolderSubFolders()) { folder ->
+            currentFiles.addSource(getCurrentSubFolders()) { folder ->
                 folder?.subFolders?.let { folders ->
-//                    Log.d(TAG, "init view model folders: $folders")
-                    it.put(File.Types.FOLDER, folders)
-                    currentFiles.postValue(it)
+                    it[File.Types.FOLDER] = folders
+                    currentFiles.value = it
                 }
             }
-
         }
     }
 
-    fun goToEditPage(noteId: Long) {
-        noteRepository.changeCurrentNote(noteId)
+    fun goToEditPage(note: Note) {
+        noteRepository.changeCurrentNote(note)
         noteRepository.changeMode(NoteRepository.Modes.EDITOR)
     }
 
-    private fun getFolderNotes(): LiveData<FolderWithNotes> {
-        return notesDB.getFolderNotes(currentFolderId.value!!)
+    private fun getCurrentNotes(): LiveData<FolderWithNotes> {
+        return getFolderByIdWithNotes(currentFolder.value!!.folderId)
     }
 
-    private fun getFolderSubFolders(): LiveData<FolderWithSubFolders> {
-        return notesDB.getFolderSubFolders(currentFolderId.value!!)
+    private fun getFolderByIdWithNotes(folderId: Long): LiveData<FolderWithNotes> {
+        return notesDB.getFolderByIdWithNotes(folderId)
     }
 
-    fun addFolder(folder: Folder) {
-        viewModelScope.launch(Dispatchers.IO) {
-            notesDB.addFolder(folder)
+    private fun getCurrentSubFolders(): LiveData<FolderWithSubFolders> {
+        return getFolderByIdWithSubFolders(currentFolder.value!!.folderId)
+    }
+
+    private fun getFolderByIdWithSubFolders(folderId: Long): LiveData<FolderWithSubFolders> {
+        return notesDB.getFolderSubFolders(folderId)
+    }
+
+    fun getRootFolder(): LiveData<Folder> {
+        return notesDB.getFolderById(NoteRepository.ROOT_FOLDER_ID)
+    }
+
+    fun getParentFolder(): LiveData<Folder> {
+        return notesDB.getFolderById(currentFolder.value!!.parentFolderId!!)
+    }
+
+    fun addFolder(folderName: String) {
+        currentFolder.value?.let { folder ->
+            viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+                Log.d(TAG, "addFolder: ${currentFolder.value!!.folderId}")
+                Log.d(TAG, "addFolder: ${currentFolder.value!!.parentFolderId}")
+                Log.d(TAG, "addFolder: ${currentFolder.value!!.name}")
+                Log.d(TAG, "addFolder: ----------------------------------")
+                notesDB.addFolder(Folder(0, folder.folderId, folderName))
+            }
         }
     }
 
-    private fun addNote(note: Note) {
-        viewModelScope.launch(Dispatchers.IO) {
-            notesDB.addNote(note)
+    fun addNote(noteName: String) {
+        currentFolder.value?.let { folder ->
+            viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+                val id = notesDB.addNote(Note(0, folder.folderId, noteName, "", Date()))
+                val note = notesDB.getNoteByIdNow(id)
+                noteRepository.currentNote.postValue(note)
+            }
         }
     }
 
-    fun addUntitledNote() {
-        currentFolderId.value?.let {
-            Log.d(
-                TAG, "addUntitledNote: ${
-                Note(
-                    0,
-                    it,
-                    "عنوان نامشخص",
-                    "",
-                    Date()
-                )}"
-            )
-            addNote(
-                Note(
-                    0,
-                    it,
-                    "عنوان نامشخص",
-                    "",
-                    Date()
-                )
-            )
-        }
+    fun changeModeToInFolderBrowsing() {
+        noteRepository.changeMode(NoteRepository.Modes.IN_FOLDER_BROWSING)
     }
 
-    fun addUntitledFolder() {
-        currentFolderId.value?.let {
-            Log.d(TAG, "addUntitledFolder: ${Folder(0, it, "پوشه بدون اسم").parentFolderId}")
-            addFolder(Folder(0, it, "پوشه بدون اسم"))
-        }
+    fun changeModeToNormalBrowsing() {
+        noteRepository.changeMode(NoteRepository.Modes.BROWSER)
     }
 
     companion object {
         private const val TAG = "ViewModel.Notes"
-        private const val ROOT_FOLDER_ID = 1L
     }
 }

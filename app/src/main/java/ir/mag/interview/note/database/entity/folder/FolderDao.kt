@@ -8,15 +8,15 @@ import ir.mag.interview.note.database.relation.FolderWithSubFolders
 @Dao
 interface FolderDao {
 
-    // Initial
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun initInsert(folder: Folder)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(folder: Folder)
 
     @Query("SELECT * FROM folders ORDER BY folderId DESC")
     fun readAll(): LiveData<List<Folder>>
+
+    @Query("SELECT * FROM folders WHERE folderId = :folderId ORDER BY folderId DESC")
+    fun selectById(folderId: Long): LiveData<Folder>
 
     @Query("SELECT * FROM folders")
     fun readAllWithNotes(): LiveData<List<FolderWithNotes>>

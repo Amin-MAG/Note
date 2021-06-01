@@ -94,10 +94,10 @@ class CommonDialog private constructor(
         // listeners
         listener?.let { handler ->
             binding.confirmDialogAcceptButton.setOnClickListener {
-                handler.onConfirm(dialog)
+                handler.onConfirm(dialog, binding)
             }
             binding.confirmDialogCancelButton.setOnClickListener {
-                handler.onCancel(dialog)
+                handler.onCancel(dialog, binding)
             }
         }
 
@@ -105,7 +105,7 @@ class CommonDialog private constructor(
     }
 
     interface OnHandle {
-        fun onCancel(dialog: AlertDialog)
-        fun onConfirm(dialog: AlertDialog)
+        fun onCancel(dialog: AlertDialog, dialogBinding: FragmentDialogCommonBinding)
+        fun onConfirm(dialog: AlertDialog, dialogBinding: FragmentDialogCommonBinding)
     }
 }
