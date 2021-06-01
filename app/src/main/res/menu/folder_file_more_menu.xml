@@ -4,14 +4,16 @@
     <group android:id="@+id/edit_name_gp">
         <item
             android:id="@+id/edit_folder_name"
-            android:gravity="end"
+            android:gravity="center"
+            android:fontFamily="@font/iran_sans"
             android:icon="@drawable/ic_edit"
             android:title="@string/edit" />
     </group>
     <group android:id="@+id/delete_gp">
         <item
             android:id="@+id/delete_folder"
-            android:gravity="end"
+            android:gravity="center"
+            android:fontFamily="@font/iran_sans"
             android:icon="@drawable/ic_delete"
             android:title="@string/deleting" />
     </group>
