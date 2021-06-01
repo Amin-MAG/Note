@@ -30,6 +30,10 @@ constructor() {
         mode.value = newMode
     }
 
+    fun postChangeMode(newMode: Modes) {
+        mode.postValue(newMode)
+    }
+
     fun changeCurrentNote(note: Note) {
         currentNote.value = note
     }
