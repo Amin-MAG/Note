@@ -11,30 +11,39 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.MenuRes
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import ir.mag.interview.note.R
 import ir.mag.interview.note.data.model.file.File
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
 import ir.mag.interview.note.databinding.FileViewHolderBinding
+import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
+import ir.mag.interview.note.ui.main.NotesFragment
 import ir.mag.interview.note.ui.main.NotesViewModel
+import ir.mag.interview.note.ui.main.dialog.CommonDialog
+import kotlinx.coroutines.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class FilesRecyclerAdapter
 constructor(
     val notesViewModel: NotesViewModel
 ) : RecyclerView.Adapter<FilesRecyclerAdapter.FileViewHolder>() {
 
-    private lateinit var activity: Activity
+    private lateinit var activity: AppCompatActivity
 
     var files: List<File> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         Log.d(TAG, "onCreateViewHolder: ")
-        activity = parent.context as Activity
+        activity = parent.context as AppCompatActivity
 
         val binding: FileViewHolderBinding = DataBindingUtil.inflate(
             LayoutInflater.from(activity),
@@ -80,7 +89,7 @@ constructor(
                     }
                     binding.fileCardOptionButton.setOnClickListener {
                         it?.let {
-                            showMenu(it, R.menu.note_file_more_menu)
+                            showMenu(it, R.menu.note_file_more_menu, file)
                         }
                     }
                 }
@@ -100,7 +109,7 @@ constructor(
                     binding.fileCardOptionButton.setOnClickListener {
                         Log.d(TAG, "bind onclick more button: ")
                         it?.let {
-                            showMenu(it, R.menu.folder_file_more_menu)
+                            showMenu(it, R.menu.folder_file_more_menu, file)
                         }
                     }
                 }
@@ -111,11 +120,86 @@ constructor(
         }
 
         //In the showMenu function from the previous example:
-        @SuppressLint("RestrictedApi")
-        private fun showMenu(v: View, @MenuRes menuRes: Int) {
+        private fun showMenu(v: View, @MenuRes menuRes: Int, file: File) {
             val popup = PopupMenu(activity, v)
             popup.menuInflater.inflate(menuRes, popup.menu)
 
+            setupIcons(popup)
+
+            popup.setOnMenuItemClickListener { menuItem: MenuItem ->
+                when (menuItem.itemId) {
+                    R.id.edit_name -> {
+                        true
+                    }
+
+                    R.id.delete_folder -> {
+                        CommonDialog.Builder(activity, activity)
+                            .setTitle(activity.getString(R.string.delete_folder))
+                            .setDescription(activity.getString(R.string.delete_folder_description))
+                            .setConfirmText(activity.getString(R.string.delete))
+                            .setListener(object : CommonDialog.OnHandle {
+                                override fun onCancel(
+                                    dialog: AlertDialog,
+                                    dialogBinding: FragmentDialogCommonBinding
+                                ) {
+                                    dialog.dismiss()
+                                }
+
+                                override fun onConfirm(
+                                    dialog: AlertDialog,
+                                    dialogBinding: FragmentDialogCommonBinding
+                                ) {
+                                    GlobalScope.launch {
+                                        notesViewModel.deleteFolder(file as Folder)
+                                    }
+                                    dialog.dismiss()
+                                }
+                            })
+                            .build()
+                            .show()
+                        true
+                    }
+
+                    R.id.delete_note -> {
+                        CommonDialog.Builder(activity, activity)
+                            .setTitle(activity.getString(R.string.delete_note))
+                            .setDescription(activity.getString(R.string.delete_note_description))
+                            .setConfirmText(activity.getString(R.string.delete))
+                            .setListener(object : CommonDialog.OnHandle {
+                                override fun onCancel(
+                                    dialog: AlertDialog,
+                                    dialogBinding: FragmentDialogCommonBinding
+                                ) {
+                                    dialog.dismiss()
+                                }
+
+                                override fun onConfirm(
+                                    dialog: AlertDialog,
+                                    dialogBinding: FragmentDialogCommonBinding
+                                ) {
+                                    GlobalScope.launch {
+                                        notesViewModel.deleteNote(file as Note)
+                                    }
+                                    dialog.dismiss()
+                                }
+                            })
+                            .build()
+                            .show()
+                        true
+                    }
+
+                    else -> throw UnsupportedOperationException("there is not this item")
+                }
+            }
+            popup.setOnDismissListener {
+                Log.d(TAG, "showMenu: Respond to popup being dismissed.")
+            }
+
+            popup.show()
+        }
+
+        @SuppressLint("RestrictedApi")
+        private fun setupIcons(popup: PopupMenu) {
             if (popup.menu is MenuBuilder) {
                 val menuBuilder = popup.menu as MenuBuilder
                 menuBuilder.setOptionalIconsVisible(true)
@@ -140,17 +224,6 @@ constructor(
                     }
                 }
             }
-
-            popup.setOnMenuItemClickListener { menuItem: MenuItem ->
-                Log.d(TAG, "showMenu: Respond to menu item click.")
-
-                true
-            }
-            popup.setOnDismissListener {
-                Log.d(TAG, "showMenu: Respond to popup being dismissed.")
-            }
-
-            popup.show()
         }
     }
 

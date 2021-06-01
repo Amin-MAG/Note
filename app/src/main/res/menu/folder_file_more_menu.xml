@@ -13,6 +13,6 @@
             android:id="@+id/delete_folder"
             android:gravity="end"
             android:icon="@drawable/ic_delete"
-            android:title="@string/delete" />
+            android:title="@string/deleting" />
     </group>
 </menu>

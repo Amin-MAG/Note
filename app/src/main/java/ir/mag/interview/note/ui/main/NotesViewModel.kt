@@ -111,6 +111,14 @@ constructor(
         }
     }
 
+    suspend fun deleteFolder(folder: Folder) {
+        notesDB.deleteFolder(folder)
+    }
+
+    suspend fun deleteNote(note: Note) {
+        notesDB.deleteNote(note)
+    }
+
     fun changeModeToInFolderBrowsing() {
         noteRepository.changeMode(NoteRepository.Modes.IN_FOLDER_BROWSING)
     }

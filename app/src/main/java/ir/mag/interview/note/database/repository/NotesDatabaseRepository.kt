@@ -30,6 +30,14 @@ constructor(
         folderDao.insert(folder)
     }
 
+    suspend fun deleteFolder(folder: Folder) {
+        folderDao.delete(folder)
+    }
+
+    suspend fun deleteNote(note: Note){
+        noteDao.delete(note)
+    }
+
     fun getFolderByIdWithNotes(folderId: Long): LiveData<FolderWithNotes> {
         return folderDao.readByIdWithNotes(folderId)
     }

@@ -1,16 +1,20 @@
 package ir.mag.interview.note.ui.main.dialog
 
 import android.content.Context
+import android.service.voice.VoiceInteractionSession
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import ir.mag.interview.note.R
 import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
 
 class CommonDialog private constructor(
-    val fragment: Fragment,
+    val lifecycleOwner: LifecycleOwner,
+    val context: Context,
     val title: String?,
     val description: String?,
     // Prompt
@@ -23,11 +27,11 @@ class CommonDialog private constructor(
 ) {
 
     lateinit var binding: FragmentDialogCommonBinding
-    val context: Context = fragment.requireContext()
     private lateinit var dialog: AlertDialog
 
     data class Builder(
-        private var fragment: Fragment,
+        private var lifecycleOwner: LifecycleOwner,
+        private var context: Context,
         private var title: String? = null,
         private var description: String? = null,
         private var hasPrompt: Boolean = false,
@@ -45,7 +49,8 @@ class CommonDialog private constructor(
         fun setCancelText(cancelText: String) = apply { this.cancelText = cancelText }
         fun setConfirmText(confirmText: String) = apply { this.confirmText = confirmText }
         fun build() = CommonDialog(
-            fragment,
+            lifecycleOwner,
+            context,
             title,
             description,
             hasPrompt,
@@ -64,7 +69,7 @@ class CommonDialog private constructor(
             null,
             false
         )
-        binding.lifecycleOwner = fragment
+        binding.lifecycleOwner = lifecycleOwner
 
 
         // create and show the alert dialog
