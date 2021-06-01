@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentFactory
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.di.notes.NotesScope
 import ir.mag.interview.note.ui.editor.EditorFragment
+import ir.mag.interview.note.ui.editor.EditorHeaderFragment
 import ir.mag.interview.note.ui.main.NotesFragment
 import ir.mag.interview.note.ui.main.NotesHeaderFragment
 import javax.inject.Inject
@@ -26,6 +27,7 @@ constructor(
 
             EditorFragment::class.java.name -> EditorFragment(viewModelFactory)
 
+            EditorHeaderFragment::class.java.name -> EditorHeaderFragment(viewModelFactory)
 
             NotesHeaderFragment::class.java.name -> NotesHeaderFragment()
 
