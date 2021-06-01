@@ -3,7 +3,7 @@
     android:layoutDirection="rtl">
     <group android:id="@+id/edit_name_gp">
         <item
-            android:id="@+id/edit_name"
+            android:id="@+id/edit_folder_name"
             android:gravity="end"
             android:icon="@drawable/ic_edit"
             android:title="@string/edit" />

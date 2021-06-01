@@ -10,7 +10,7 @@ class Folder(
     @PrimaryKey(autoGenerate = true)
     val folderId: Long,
     val parentFolderId: Long?,
-    val name: String
+    var name: String
 ) : File() {
     override val type: Types
         get() = Types.FOLDER

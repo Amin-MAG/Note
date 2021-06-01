@@ -2,6 +2,7 @@ package ir.mag.interview.note.ui.main.dialog
 
 import android.content.Context
 import android.service.voice.VoiceInteractionSession
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -20,6 +21,7 @@ class CommonDialog private constructor(
     // Prompt
     val hasPrompt: Boolean = false,
     val promptHint: String?,
+    val promptText: Editable?,
     // Buttons and Callbacks
     val listener: OnHandle?,
     val confirmText: String?,
@@ -36,6 +38,7 @@ class CommonDialog private constructor(
         private var description: String? = null,
         private var hasPrompt: Boolean = false,
         private var promptHint: String? = null,
+        private var promptText: Editable? = null,
         private var listener: OnHandle? = null,
         private var confirmText: String? = null,
         private var cancelText: String? = null
@@ -45,6 +48,7 @@ class CommonDialog private constructor(
         fun setDescription(description: String) = apply { this.description = description }
         fun setHasPrompt(hasPrompt: Boolean) = apply { this.hasPrompt = hasPrompt }
         fun setPromptHint(promptHint: String) = apply { this.promptHint = promptHint }
+        fun setPromptText(text: Editable) = apply { this.promptText = promptText }
         fun setListener(listener: OnHandle) = apply { this.listener = listener }
         fun setCancelText(cancelText: String) = apply { this.cancelText = cancelText }
         fun setConfirmText(confirmText: String) = apply { this.confirmText = confirmText }
@@ -55,6 +59,7 @@ class CommonDialog private constructor(
             description,
             hasPrompt,
             promptHint,
+            promptText,
             listener,
             confirmText,
             cancelText
@@ -81,10 +86,14 @@ class CommonDialog private constructor(
 
         // set properties
         binding.confirmDialogTitle.text = title
-        binding.confirmDialogQuestion.text = description
         binding.confirmDialogAcceptButton.text = confirmText
+        binding.commonDialogTextField.text = promptText
         cancelText?.let {
             binding.confirmDialogCancelButton.text = it
+        }
+        description?.let {
+            binding.confirmDialogQuestion.visibility = View.VISIBLE
+            binding.confirmDialogQuestion.text = description
         }
 
         // prompt

@@ -111,6 +111,10 @@ constructor(
         }
     }
 
+    suspend fun updateFolder(folder: Folder) {
+        notesDB.updateFolder(folder)
+    }
+
     suspend fun deleteFolder(folder: Folder) {
         notesDB.deleteFolder(folder)
     }

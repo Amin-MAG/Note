@@ -28,6 +28,9 @@ interface FolderDao {
     @Query("SELECT * FROM folders WHERE folderId = :folderId ORDER BY folderId DESC")
     fun readByIdWithSubFolders(folderId: Long): LiveData<FolderWithSubFolders>
 
+    @Update
+    suspend fun update(folder: Folder);
+
     @Delete
     suspend fun delete(folder: Folder)
 

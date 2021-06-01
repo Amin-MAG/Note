@@ -1,9 +1,9 @@
 package ir.mag.interview.note.ui.main.recycler.adapter
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.graphics.drawable.InsetDrawable
 import android.os.Build
+import android.text.SpannableStringBuilder
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -17,7 +17,6 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import ir.mag.interview.note.R
 import ir.mag.interview.note.data.model.file.File
@@ -25,11 +24,9 @@ import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
 import ir.mag.interview.note.databinding.FileViewHolderBinding
 import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
-import ir.mag.interview.note.ui.main.NotesFragment
 import ir.mag.interview.note.ui.main.NotesViewModel
 import ir.mag.interview.note.ui.main.dialog.CommonDialog
 import kotlinx.coroutines.*
-import java.util.*
 import kotlin.collections.ArrayList
 
 class FilesRecyclerAdapter
@@ -128,7 +125,35 @@ constructor(
 
             popup.setOnMenuItemClickListener { menuItem: MenuItem ->
                 when (menuItem.itemId) {
-                    R.id.edit_name -> {
+                    R.id.edit_folder_name -> {
+                        val folder = file as Folder
+                        CommonDialog.Builder(activity, activity)
+                            .setTitle(activity.getString(R.string.edit_folder_name))
+                            .setConfirmText(activity.getString(R.string.save))
+                            .setListener(object : CommonDialog.OnHandle {
+                                override fun onCancel(
+                                    dialog: AlertDialog,
+                                    dialogBinding: FragmentDialogCommonBinding
+                                ) {
+                                    dialog.dismiss()
+                                }
+
+                                override fun onConfirm(
+                                    dialog: AlertDialog,
+                                    dialogBinding: FragmentDialogCommonBinding
+                                ) {
+                                    GlobalScope.launch {
+                                        folder.name =
+                                            dialogBinding.commonDialogTextField.text.toString()
+                                        notesViewModel.updateFolder(folder)
+                                    }
+                                    dialog.dismiss()
+                                }
+                            })
+                            .setHasPrompt(true)
+                            .setPromptText(SpannableStringBuilder(folder.name))
+                            .build()
+                            .show()
                         true
                     }
 
