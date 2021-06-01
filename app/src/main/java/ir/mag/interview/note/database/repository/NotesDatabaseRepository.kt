@@ -22,8 +22,8 @@ constructor(
     val notes: LiveData<List<Note>> = noteDao.readAll()
     val folders: LiveData<List<FolderWithNotes>> = folderDao.readAllWithNotes()
 
-    suspend fun addNote(note: Note) {
-        noteDao.insert(note)
+    suspend fun addNote(note: Note): Long {
+        return noteDao.insert(note)
     }
 
     suspend fun addFolder(folder: Folder) {
@@ -44,6 +44,10 @@ constructor(
 
     fun getNoteById(noteId: Long): LiveData<Note> {
         return noteDao.selectById(noteId)
+    }
+
+    fun getNoteByIdNow(noteId: Long): Note {
+        return noteDao.selectByIdNow(noteId)
     }
 
     companion object {

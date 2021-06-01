@@ -1,6 +1,7 @@
 package ir.mag.interview.note.ui.main
 
 import android.icu.text.CaseMap
+import android.provider.ContactsContract
 import android.util.Log
 import androidx.lifecycle.*
 import ir.mag.interview.note.data.model.file.File
@@ -17,6 +18,7 @@ import java.lang.IllegalStateException
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
+import kotlin.math.log
 
 
 class NotesViewModel
@@ -28,6 +30,7 @@ constructor(
 
 
     var currentFolder: LiveData<Folder> = noteRepository.currentFolder
+    var currentNote: LiveData<Note> = noteRepository.currentNote
     var currentFiles: MediatorLiveData<EnumMap<File.Types, List<File>>> = MediatorLiveData()
 
     fun changeFolder(folder: Folder) {
@@ -57,13 +60,8 @@ constructor(
         }
     }
 
-    fun goToEditPage(noteId: Long) {
-        val note = notesDB.getNoteById(noteId)
-        if (note.value == null) {
-            throw IllegalStateException("can not find the note !")
-        }
-
-        noteRepository.changeCurrentNote(note.value!!)
+    fun goToEditPage(note: Note) {
+        noteRepository.changeCurrentNote(note)
         noteRepository.changeMode(NoteRepository.Modes.EDITOR)
     }
 
@@ -103,36 +101,15 @@ constructor(
         }
     }
 
-    private fun addNote(note: Note) {
-        viewModelScope.launch(Dispatchers.IO) {
-            notesDB.addNote(note)
+    fun addNote(noteName: String) {
+        currentFolder.value?.let { folder ->
+            viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+                val id = notesDB.addNote(Note(0, folder.folderId, noteName, "", Date()))
+                val note = notesDB.getNoteByIdNow(id)
+                noteRepository.currentNote.postValue(note)
+            }
         }
     }
-
-    fun addUntitledNote() {
-        currentFolder.value?.let {
-            Log.d(
-                TAG, "addUntitledNote: ${
-                Note(
-                    0,
-                    it.folderId,
-                    "عنوان نامشخص",
-                    "",
-                    Date()
-                )}"
-            )
-            addNote(
-                Note(
-                    0,
-                    it.folderId,
-                    "عنوان نامشخص",
-                    "",
-                    Date()
-                )
-            )
-        }
-    }
-
 
     fun changeModeToInFolderBrowsing() {
         noteRepository.changeMode(NoteRepository.Modes.IN_FOLDER_BROWSING)

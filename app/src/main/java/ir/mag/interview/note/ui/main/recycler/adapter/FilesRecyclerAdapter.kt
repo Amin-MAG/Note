@@ -67,7 +67,7 @@ constructor(
                         ContextCompat.getDrawable(activity, R.drawable.circle_light_blue);
                     binding.fileCardIcon.setImageResource(R.drawable.ic_note)
                     binding.fileCard.setOnClickListener {
-                        TODO("yet not implemented")
+                        notesViewModel.goToEditPage(note)
                     }
                     binding.fileCardOptionButton.setOnClickListener {
                         TODO("yet not implemented")

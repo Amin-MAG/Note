@@ -31,7 +31,7 @@ constructor() {
     }
 
     fun changeCurrentNote(note: Note) {
-        currentNote.postValue(note)
+        currentNote.value = note
     }
 
     fun changeCurrentFolder(folder: Folder) {

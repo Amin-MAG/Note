@@ -126,9 +126,14 @@ constructor(
 
         // floating action button
         binding.fabNewNote.setOnClickListener {
-            viewModel.goToEditPage(2)
-//            viewModel.addUntitledNote()
+            viewModel.addNote(resources.getString(R.string.untitled))
+            viewModel.currentNote.observeOnce(this, Observer {
+                it?.let {
+                    viewModel.goToEditPage(it)
+                }
+            })
         }
+
         binding.fabNewFolder.setOnClickListener {
             CommonDialog.Builder(this)
                 .setTitle("پوشه جدید")
