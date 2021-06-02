@@ -28,10 +28,13 @@ constructor(
     private val notesDB: NotesDatabaseRepository
 ) : ViewModel() {
 
-
     var currentFolder: LiveData<Folder> = noteRepository.currentFolder
     var currentNote: LiveData<Note> = noteRepository.currentNote
     var currentFiles: MediatorLiveData<EnumMap<File.Types, List<File>>> = MediatorLiveData()
+
+    val dateComparator = Comparator { note1: Note, note2: Note ->
+        note2.date.compareTo(note1.date)
+    }
 
     fun changeFolder(folder: Folder) {
         noteRepository.changeCurrentFolder(folder)
@@ -50,7 +53,8 @@ constructor(
 
             currentFiles.addSource(getCurrentNotes()) { folder ->
                 folder?.notes?.let { notes ->
-                    it[File.Types.NOTE] = notes
+                    val sortedNotes = notes.sortedWith(dateComparator)
+                    it[File.Types.NOTE] = sortedNotes
                     currentFiles.value = it
                 }
             }
