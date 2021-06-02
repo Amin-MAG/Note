@@ -73,7 +73,7 @@ constructor(
             it?.let {
                 binding.noteEditorTitle.text = SpannableStringBuilder(it.title)
                 binding.noteEditorContent.text = SpannableStringBuilder(it.content)
-                viewModel.editedNote = it
+                viewModel.editedNote.postValue(it)
             }
         })
 
@@ -85,9 +85,11 @@ constructor(
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val editedNote = viewModel.editedNote
-                editedNote.title = s.toString()
-                viewModel.editedNote = editedNote
+                viewModel.editedNote.value?.let {
+                    val editedNote = it
+                    editedNote.title = s.toString()
+                    viewModel.editedNote.postValue(editedNote)
+                }
             }
         })
 
@@ -99,9 +101,11 @@ constructor(
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val editedNote = viewModel.editedNote
-                editedNote.content = s.toString()
-                viewModel.editedNote = editedNote
+                viewModel.editedNote.value?.let {
+                    val editedNote = it
+                    editedNote.content = s.toString()
+                    viewModel.editedNote.postValue(editedNote)
+                }
             }
         })
     }

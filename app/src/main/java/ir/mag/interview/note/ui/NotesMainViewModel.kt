@@ -12,4 +12,8 @@ constructor(
 
     var mode: LiveData<NoteRepository.Modes> = noteRepository.mode
 
+    fun goBackToBrowser() {
+        noteRepository.changeMode(NoteRepository.Modes.BROWSER)
+    }
+
 }

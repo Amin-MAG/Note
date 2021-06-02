@@ -26,6 +26,8 @@ constructor() {
     var currentFolder: MutableLiveData<Folder> = MutableLiveData()
         private set
 
+    var editedNote: MutableLiveData<Note> = MutableLiveData()
+
     fun changeMode(newMode: Modes) {
         mode.value = newMode
     }
