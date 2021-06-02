@@ -3,6 +3,7 @@
     <group>
         <item
             android:id="@+id/delete_note"
+            android:background="@color/white"
             android:fontFamily="@font/iran_sans"
             android:gravity="center"
             android:icon="@drawable/ic_delete"
