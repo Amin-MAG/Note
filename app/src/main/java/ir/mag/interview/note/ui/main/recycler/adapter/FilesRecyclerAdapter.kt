@@ -170,18 +170,17 @@ constructor(
                             .setListener(object : CommonDialog.OnHandle {
                                 override fun onCancel(
                                     dialog: AlertDialog,
-                                    dialogBinding: FragmentDialogCommonBinding
+                                    text: String
                                 ) {
                                     dialog.dismiss()
                                 }
 
                                 override fun onConfirm(
                                     dialog: AlertDialog,
-                                    dialogBinding: FragmentDialogCommonBinding
+                                    text: String
                                 ) {
                                     GlobalScope.launch {
-                                        folder.name =
-                                            dialogBinding.commonDialogTextField.text.toString()
+                                        folder.name =text
                                         notesViewModel.updateFolder(folder)
                                     }
                                     dialog.dismiss()
@@ -202,14 +201,14 @@ constructor(
                             .setListener(object : CommonDialog.OnHandle {
                                 override fun onCancel(
                                     dialog: AlertDialog,
-                                    dialogBinding: FragmentDialogCommonBinding
+                                    text: String
                                 ) {
                                     dialog.dismiss()
                                 }
 
                                 override fun onConfirm(
                                     dialog: AlertDialog,
-                                    dialogBinding: FragmentDialogCommonBinding
+                                    text: String
                                 ) {
                                     GlobalScope.launch {
                                         notesViewModel.deleteFolder(file as Folder)
@@ -230,14 +229,14 @@ constructor(
                             .setListener(object : CommonDialog.OnHandle {
                                 override fun onCancel(
                                     dialog: AlertDialog,
-                                    dialogBinding: FragmentDialogCommonBinding
+                                    text: String
                                 ) {
                                     dialog.dismiss()
                                 }
 
                                 override fun onConfirm(
                                     dialog: AlertDialog,
-                                    dialogBinding: FragmentDialogCommonBinding
+                                    text: String
                                 ) {
                                     GlobalScope.launch {
                                         notesViewModel.deleteNote(file as Note)

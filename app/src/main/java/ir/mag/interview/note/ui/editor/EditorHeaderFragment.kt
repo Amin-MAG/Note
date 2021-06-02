@@ -73,6 +73,11 @@ constructor(
 
     private fun setupUI() {
         binding.editorHeaderBack.setOnClickListener {
+            viewModel.editedNote.value?.let {
+                if (it.title == "") {
+                    it.title = resources.getString(R.string.untitled)
+                }
+            }
             GlobalScope.launch {
                 viewModel.updateNewNote()
             }
@@ -104,14 +109,14 @@ constructor(
                         .setListener(object : CommonDialog.OnHandle {
                             override fun onCancel(
                                 dialog: AlertDialog,
-                                dialogBinding: FragmentDialogCommonBinding
+                                text: String
                             ) {
                                 dialog.dismiss()
                             }
 
                             override fun onConfirm(
                                 dialog: AlertDialog,
-                                dialogBinding: FragmentDialogCommonBinding
+                                text: String
                             ) {
                                 GlobalScope.launch {
                                     viewModel.deleteNote(file as Note)

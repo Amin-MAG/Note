@@ -142,17 +142,20 @@ constructor(
                 .setListener(object : CommonDialog.OnHandle {
                     override fun onCancel(
                         dialog: AlertDialog,
-                        dialogBinding: FragmentDialogCommonBinding
+                        text: String
                     ) {
                         dialog.dismiss()
                     }
 
                     override fun onConfirm(
                         dialog: AlertDialog,
-                        dialogBinding: FragmentDialogCommonBinding
+                        text: String
                     ) {
-                        Log.d(TAG, "onConfirm: ${dialogBinding.commonDialogTextField.text}")
-                        viewModel.addFolder(dialogBinding.commonDialogTextField.text.toString())
+                        if (text == "") {
+                            viewModel.addFolder(resources.getString(R.string.unname))
+                        } else {
+                            viewModel.addFolder(text)
+                        }
                         dialog.dismiss()
                     }
                 })
