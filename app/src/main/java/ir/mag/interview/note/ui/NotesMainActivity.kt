@@ -52,7 +52,6 @@ class NotesMainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate: ")
         inject()
-
         provideFragments()
 
         binding = ActivityNotesMainBinding.inflate(layoutInflater)
@@ -62,7 +61,7 @@ class NotesMainActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
-        setupUI()
+        handleUiModes()
     }
 
     override fun finish() {
@@ -71,17 +70,18 @@ class NotesMainActivity : AppCompatActivity() {
                 NoteRepository.Modes.BROWSER -> super.finish()
                 NoteRepository.Modes.IN_FOLDER_BROWSING -> {
                     notesViewModel.currentFolder.value?.let {
-                        notesViewModel.getParentFolder().observeOnce(this, Observer { folder ->
-                            notesViewModel.changeFolder(folder)
-                        })
+                        notesViewModel.getParentFolder().observeOnce(this,
+                            Observer { folder ->
+                                notesViewModel.changeFolder(folder)
+                            })
                     }
                 }
                 NoteRepository.Modes.EDITOR -> {
                     GlobalScope.launch {
                         editorViewModel.updateNewNote()
                     }
-                    editorViewModel.currentFolder.value?.let {folder->
-                        if (folder.folderId == NoteRepository.ROOT_FOLDER_ID){
+                    editorViewModel.currentFolder.value?.let { folder ->
+                        if (folder.folderId == NoteRepository.ROOT_FOLDER_ID) {
                             editorViewModel.goBackToBrowserMode()
                         } else {
                             editorViewModel.goBackToInFolderBrowserMode()
@@ -109,12 +109,11 @@ class NotesMainActivity : AppCompatActivity() {
             fragmentFactory.instantiate(classLoader, EditorHeaderFragment::class.java.name)
     }
 
-    private fun setupUI() {
+    private fun handleUiModes() {
         Log.d(TAG, "setupUI: ")
 
         notesMainViewModel.mode.observe(this, Observer {
             it?.let {
-
                 when (it) {
                     NoteRepository.Modes.BROWSER -> {
                         Log.d(TAG, "setupUI: change to normal browser mode")
@@ -131,6 +130,7 @@ class NotesMainActivity : AppCompatActivity() {
                             notesFragment
                         )
                     }
+
                     NoteRepository.Modes.EDITOR -> {
                         Log.d(TAG, "setupUI: change to in editing mode")
                         updateFragments(
@@ -138,15 +138,13 @@ class NotesMainActivity : AppCompatActivity() {
                             editorFragment
                         )
                     }
-
-                    else -> UnsupportedOperationException("this kind of mode is not supported")
                 }
             }
         })
 
     }
 
-    fun updateFragments(header: Fragment, content: Fragment) {
+    private fun updateFragments(header: Fragment, content: Fragment) {
         // header fragment
         UiUtil.changeFragment(
             supportFragmentManager,
@@ -174,7 +172,6 @@ class NotesMainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val FRAGMENT_TAG: String = "NOTES_MAIN_ACTIVITY_FRAGMENT"
         private const val TAG = "Activity.NotesMainActivity"
     }
 

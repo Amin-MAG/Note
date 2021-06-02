@@ -10,11 +10,9 @@ import ir.mag.interview.note.di.DaggerApplicationComponent
 class NoteApplication : Application() {
     companion object {
         private lateinit var context: Context
-        fun getApplicationContext(): Context = context
     }
 
     lateinit var applicationComponent: ApplicationComponent
-
 
     override fun onCreate() {
         super.onCreate()

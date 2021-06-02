@@ -26,15 +26,13 @@ import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
 import ir.mag.interview.note.data.model.file.File
 import ir.mag.interview.note.database.entity.folder.Folder
-import ir.mag.interview.note.database.entity.note.Note
-import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
-import ir.mag.interview.note.databinding.HeaderEditorActionBarBinding
 import ir.mag.interview.note.databinding.HeaderInFolderActionBarBinding
 import ir.mag.interview.note.ui.NotesMainActivity
-import ir.mag.interview.note.ui.NotesMainViewModel
 import ir.mag.interview.note.ui.editor.EditorHeaderFragment
 import ir.mag.interview.note.ui.editor.EditorViewModel
 import ir.mag.interview.note.ui.main.dialog.CommonDialog
+import ir.mag.interview.note.ui.main.dialog.DeleteFolderDialog
+import ir.mag.interview.note.ui.main.dialog.EditFolderDialog
 import ir.mag.interview.note.ui.main.recycler.adapter.FilesRecyclerAdapter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -75,16 +73,20 @@ constructor(
 
         setupUI()
 
+        observe()
+
         // Inflate the layout for this fragment
         return binding.root
     }
 
-    private fun setupUI() {
-        // bind view
+    private fun observe() {
+        // observe the current directory name
         viewModel.currentFolder.observe(viewLifecycleOwner, Observer {
             binding.inFolderHeaderTitle.text = it.name
         })
+    }
 
+    private fun setupUI() {
         // setup on click listeners
         binding.inFolderHeaderBack.setOnClickListener {
             changeFolderToParentFolder()
@@ -115,23 +117,12 @@ constructor(
 
         popup.setOnMenuItemClickListener { menuItem: MenuItem ->
             when (menuItem.itemId) {
+
                 R.id.edit_folder_name -> {
                     val folder = file as Folder
-                    CommonDialog.Builder(this, requireContext())
-                        .setTitle(resources.getString(R.string.edit_folder_name))
-                        .setConfirmText(resources.getString(R.string.save))
-                        .setListener(object : CommonDialog.OnHandle {
-                            override fun onCancel(
-                                dialog: AlertDialog,
-                                text: String
-                            ) {
-                                dialog.dismiss()
-                            }
-
-                            override fun onConfirm(
-                                dialog: AlertDialog,
-                                text: String
-                            ) {
+                    EditFolderDialog(this, requireContext(), folder,
+                        object : EditFolderDialog.OnEditCallback {
+                            override fun onEdit(dialog: AlertDialog, text: String) {
                                 GlobalScope.launch {
                                     folder.name = text
                                     viewModel.updateFolder(folder)
@@ -139,48 +130,26 @@ constructor(
                                 }
                                 dialog.dismiss()
                             }
-                        })
-                        .setHasPrompt(true)
-                        .setPromptText(SpannableStringBuilder(folder.name))
-                        .build()
-                        .show()
+                        }).show()
                     true
                 }
 
                 R.id.delete_folder -> {
-                    CommonDialog.Builder(this, requireContext())
-                        .setTitle(resources.getString(R.string.delete_folder))
-                        .setDescription(resources.getString(R.string.delete_folder_description))
-                        .setConfirmText(resources.getString(R.string.delete))
-                        .setListener(object : CommonDialog.OnHandle {
-                            override fun onCancel(
-                                dialog: AlertDialog,
-                                text: String
-                            ) {
-                                dialog.dismiss()
-                            }
-
-                            override fun onConfirm(
-                                dialog: AlertDialog,
-                                text: String
-                            ) {
+                    DeleteFolderDialog(this, requireContext(), file as Folder,
+                        object : DeleteFolderDialog.OnDeleteCallback {
+                            override fun onDelete(dialog: AlertDialog, text: String) {
                                 changeFolderToParentFolder()
                                 GlobalScope.launch {
                                     viewModel.deleteFolder(file as Folder)
                                 }
                                 dialog.dismiss()
                             }
-                        })
-                        .build()
-                        .show()
+                        }).show()
                     true
                 }
 
                 else -> throw UnsupportedOperationException("there is not this item")
             }
-        }
-        popup.setOnDismissListener {
-            Log.d(TAG, "showMenu: Respond to popup being dismissed.")
         }
 
         popup.show()

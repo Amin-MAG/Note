@@ -30,6 +30,9 @@ import ir.mag.interview.note.databinding.FileViewHolderBinding
 import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
 import ir.mag.interview.note.ui.main.NotesViewModel
 import ir.mag.interview.note.ui.main.dialog.CommonDialog
+import ir.mag.interview.note.ui.main.dialog.DeleteFolderDialog
+import ir.mag.interview.note.ui.main.dialog.DeleteNoteDialog
+import ir.mag.interview.note.ui.main.dialog.EditFolderDialog
 import ir.mag.interview.note.util.TimeUtil
 import kotlinx.coroutines.*
 import kotlin.collections.ArrayList
@@ -83,72 +86,64 @@ constructor(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(file: File) {
-//            Log.d(TAG, "bind: ")
 
             when (file.type) {
-
                 File.Types.NOTE -> {
-                    val note = file as Note
-
-                    binding.fileCardTitle.text = note.title
-                    bindLastVisitDate(TimeUtil.getDistanceDescription(note.lastUpdateDate))
-                    binding.fileCardIconFrame.background =
-                        ContextCompat.getDrawable(activity, R.drawable.circle_light_blue);
-                    binding.fileCardIcon.setImageResource(R.drawable.ic_note)
-                    binding.fileCard.setOnClickListener {
-                        notesViewModel.goToEditPage(note)
-                    }
-                    binding.fileCardOptionButton.setOnClickListener {
-                        it?.let {
-                            showMenu(it, R.menu.note_file_more_menu, file)
-                        }
-                    }
+                    bindNote(file as Note)
                 }
 
                 File.Types.FOLDER -> {
-                    val folder = file as Folder
-
-                    binding.fileCardTitle.text = folder.name
-                    notesViewModel.getFolderByIdWithNotes(folder.folderId)
-                        .observeOnce(activity, Observer {
-                            it?.notes?.let { notes ->
-                                binding.fileCardDescription.text =
-                                    activity.getString(R.string.count_notes, notes.size)
-                            }
-                        })
-                    binding.fileCardIconFrame.background =
-                        ContextCompat.getDrawable(activity, R.drawable.circle_yellow);
-                    binding.fileCardIcon.setImageResource(R.drawable.ic_folder)
-                    binding.fileCard.setOnClickListener {
-                        Log.d(TAG, "bind onclick card: ")
-                        notesViewModel.changeFolder(folder)
-                    }
-                    binding.fileCardOptionButton.setOnClickListener {
-                        Log.d(TAG, "bind onclick more button: ")
-                        it?.let {
-                            showMenu(it, R.menu.folder_file_more_menu, file)
-                        }
-                    }
+                    bindFolder(file as Folder)
                 }
-
-                else -> throw UnsupportedOperationException("can not show this type of file")
             }
 
         }
 
-        private fun bindLastVisitDate(distanceDescription: TimeUtil.TimeDifference) {
-            val parameter = when (distanceDescription.type) {
-                TimeUtil.TimeDifference.TYPE.SECOND -> "ثانیه"
-                TimeUtil.TimeDifference.TYPE.MINUTE -> "دقیقه"
-                TimeUtil.TimeDifference.TYPE.HOUR -> "ساعت"
-                TimeUtil.TimeDifference.TYPE.DAY -> "روز"
-                TimeUtil.TimeDifference.TYPE.MONTH -> "ماه"
-                TimeUtil.TimeDifference.TYPE.YEAR -> "سال"
+        private fun bindFolder(folder: Folder) {
+            binding.fileCardTitle.text = folder.name
+            notesViewModel.getFolderByIdWithNotes(folder.folderId)
+                .observeOnce(activity, Observer {
+                    it?.notes?.let { notes ->
+                        binding.fileCardDescription.text =
+                            activity.getString(R.string.count_notes, notes.size)
+                    }
+                })
+            binding.fileCardIconFrame.background =
+                ContextCompat.getDrawable(activity, R.drawable.circle_yellow);
+            binding.fileCardIcon.setImageResource(R.drawable.ic_folder)
+            binding.fileCard.setOnClickListener {
+                Log.d(TAG, "bind onclick card: ")
+                notesViewModel.changeFolder(folder)
             }
+            binding.fileCardOptionButton.setOnClickListener {
+                Log.d(TAG, "bind onclick more button: ")
+                it?.let {
+                    showMenu(it, R.menu.folder_file_more_menu, folder)
+                }
+            }
+        }
+
+        private fun bindNote(note: Note) {
+            binding.fileCardTitle.text = note.title
+            bindLastVisitDate(TimeUtil.getDistanceDescription(note.lastUpdateDate))
+            binding.fileCardIconFrame.background =
+                ContextCompat.getDrawable(activity, R.drawable.circle_light_blue);
+            binding.fileCardIcon.setImageResource(R.drawable.ic_note)
+            binding.fileCard.setOnClickListener {
+                notesViewModel.goToEditPage(note)
+            }
+            binding.fileCardOptionButton.setOnClickListener {
+                it?.let {
+                    showMenu(it, R.menu.note_file_more_menu, note)
+                }
+            }
+        }
+
+        private fun bindLastVisitDate(distanceDescription: TimeUtil.TimeDifference) {
             val distance = activity.resources.getString(
                 R.string.last_visit,
                 distanceDescription.amount.toInt(),
-                parameter
+                TimeUtil.typeToPersianString(distanceDescription)
             )
             binding.fileCardDescription.text = distance
         }
@@ -163,97 +158,51 @@ constructor(
             popup.setOnMenuItemClickListener { menuItem: MenuItem ->
                 when (menuItem.itemId) {
                     R.id.edit_folder_name -> {
-                        val folder = file as Folder
-                        CommonDialog.Builder(activity, activity)
-                            .setTitle(activity.getString(R.string.edit_folder_name))
-                            .setConfirmText(activity.getString(R.string.save))
-                            .setListener(object : CommonDialog.OnHandle {
-                                override fun onCancel(
-                                    dialog: AlertDialog,
-                                    text: String
-                                ) {
-                                    dialog.dismiss()
-                                }
 
-                                override fun onConfirm(
-                                    dialog: AlertDialog,
-                                    text: String
-                                ) {
+                        val folder = file as Folder
+                        EditFolderDialog(activity, activity, folder,
+                            object : EditFolderDialog.OnEditCallback {
+                                override fun onEdit(dialog: AlertDialog, text: String) {
                                     GlobalScope.launch {
-                                        folder.name =text
+                                        folder.name = text
                                         notesViewModel.updateFolder(folder)
                                     }
                                     dialog.dismiss()
                                 }
-                            })
-                            .setHasPrompt(true)
-                            .setPromptText(SpannableStringBuilder(folder.name))
-                            .build()
-                            .show()
+                            }).show()
                         true
                     }
 
                     R.id.delete_folder -> {
-                        CommonDialog.Builder(activity, activity)
-                            .setTitle(activity.getString(R.string.delete_folder))
-                            .setDescription(activity.getString(R.string.delete_folder_description))
-                            .setConfirmText(activity.getString(R.string.delete))
-                            .setListener(object : CommonDialog.OnHandle {
-                                override fun onCancel(
-                                    dialog: AlertDialog,
-                                    text: String
-                                ) {
-                                    dialog.dismiss()
-                                }
-
-                                override fun onConfirm(
-                                    dialog: AlertDialog,
-                                    text: String
-                                ) {
+                        DeleteFolderDialog(activity, activity, file as Folder,
+                            object : DeleteFolderDialog.OnDeleteCallback {
+                                override fun onDelete(dialog: AlertDialog, text: String) {
                                     GlobalScope.launch {
-                                        notesViewModel.deleteFolder(file as Folder)
+                                        notesViewModel.deleteFolder(file)
                                     }
                                     dialog.dismiss()
                                 }
-                            })
-                            .build()
-                            .show()
+                            }).show()
                         true
                     }
 
                     R.id.delete_note -> {
-                        CommonDialog.Builder(activity, activity)
-                            .setTitle(activity.getString(R.string.delete_note))
-                            .setDescription(activity.getString(R.string.delete_note_description))
-                            .setConfirmText(activity.getString(R.string.delete))
-                            .setListener(object : CommonDialog.OnHandle {
-                                override fun onCancel(
-                                    dialog: AlertDialog,
-                                    text: String
-                                ) {
-                                    dialog.dismiss()
-                                }
-
-                                override fun onConfirm(
-                                    dialog: AlertDialog,
-                                    text: String
-                                ) {
+                        DeleteNoteDialog(
+                            activity,
+                            activity,
+                            object : DeleteNoteDialog.OnDeleteCallback {
+                                override fun onDelete(dialog: AlertDialog, text: String) {
                                     GlobalScope.launch {
                                         notesViewModel.deleteNote(file as Note)
                                     }
                                     dialog.dismiss()
                                 }
-                            })
-                            .build()
-                            .show()
+                            }).show()
                         true
                     }
 
                     else -> throw UnsupportedOperationException("there is not this item")
                 }
-            }
-            popup.setOnDismissListener {
-                Log.d(TAG, "showMenu: Respond to popup being dismissed.")
             }
 
             popup.show()

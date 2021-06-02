@@ -7,13 +7,7 @@ import javax.inject.Inject
 
 class NotesMainViewModel @Inject
 constructor(
-    private val noteRepository: NoteRepository
+    noteRepository: NoteRepository
 ) : ViewModel() {
-
     var mode: LiveData<NoteRepository.Modes> = noteRepository.mode
-
-    fun goBackToBrowser() {
-        noteRepository.changeMode(NoteRepository.Modes.BROWSER)
-    }
-
 }

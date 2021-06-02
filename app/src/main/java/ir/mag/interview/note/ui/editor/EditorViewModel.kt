@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import ir.mag.interview.note.R
 import ir.mag.interview.note.data.repository.NoteRepository
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
@@ -11,7 +12,9 @@ import ir.mag.interview.note.database.repository.NotesDatabaseRepository
 import java.util.*
 import javax.inject.Inject
 
-
+/**
+ * [EditorViewModel] is responsible for logic of editor page.
+ */
 class EditorViewModel
 @Inject
 constructor(
@@ -19,21 +22,24 @@ constructor(
     private val notesDB: NotesDatabaseRepository
 ) : ViewModel() {
 
-    var mode: LiveData<NoteRepository.Modes> = noteRepository.mode
-    var currentNote: LiveData<Note> = noteRepository.currentNote
-    var currentFolder: LiveData<Folder> = noteRepository.currentFolder
+    var currentNote: LiveData<Note> = noteRepository.selectedNote
+    var currentFolder: LiveData<Folder> = noteRepository.selectedFolder
+
     var editedNote: MutableLiveData<Note> = noteRepository.editedNote
 
-    fun goBackToBrowserMode() {
-        noteRepository.changeMode(NoteRepository.Modes.BROWSER)
-    }
 
-    fun postGoBackToBrowser() {
-        noteRepository.postChangeMode(NoteRepository.Modes.BROWSER)
-    }
-
+    /**
+     * Database:
+     *
+     * [updateNewNote]
+     * [deleteNote]
+     */
     suspend fun updateNewNote() {
+
         noteRepository.editedNote.value?.let {
+            if (it.title == "") {
+                it.title = "بدون عنوان"
+            }
             it.lastUpdateDate = Date()
             Log.d(TAG, "updateNewNote: ${it.content}")
             notesDB.updateNote(it)
@@ -44,12 +50,29 @@ constructor(
         notesDB.deleteNote(note)
     }
 
+
+    /**
+     * Change state:
+     *
+     * [goBackToInFolderBrowserMode]
+     * [postGoBackToInFolderBrowserMode]
+     * [goBackToBrowserMode]
+     * [postGoBackToBrowser]
+     */
     fun goBackToInFolderBrowserMode() {
         noteRepository.changeMode(NoteRepository.Modes.IN_FOLDER_BROWSING)
     }
 
     fun postGoBackToInFolderBrowserMode() {
         noteRepository.postChangeMode(NoteRepository.Modes.IN_FOLDER_BROWSING)
+    }
+
+    fun goBackToBrowserMode() {
+        noteRepository.changeMode(NoteRepository.Modes.BROWSER)
+    }
+
+    fun postGoBackToBrowser() {
+        noteRepository.postChangeMode(NoteRepository.Modes.BROWSER)
     }
 
     companion object {

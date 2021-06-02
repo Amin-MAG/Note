@@ -8,9 +8,9 @@
         android:background="@color/white"
         android:fontFamily="@font/iran_sans"
         android:gravity="right|center_vertical"
-        android:paddingTop="14dp"
+        android:paddingTop="10dp"
         android:paddingRight="16dp"
-        android:paddingBottom="14dp"
+        android:paddingBottom="20dp"
         android:text="@string/notes"
         android:textColor="@color/black"
         android:textSize="20dp" />

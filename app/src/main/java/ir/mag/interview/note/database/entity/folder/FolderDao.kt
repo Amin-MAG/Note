@@ -9,7 +9,6 @@ import ir.mag.interview.note.database.relation.FolderWithSubFolders
 @Dao
 interface FolderDao {
 
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(folder: Folder)
 
@@ -36,5 +35,4 @@ interface FolderDao {
 
     @Delete
     suspend fun delete(folder: Folder)
-
 }

@@ -27,6 +27,10 @@ abstract class FilesDatabase : RoomDatabase() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
 
+            createRootFolder(db)
+        }
+
+        private fun createRootFolder(db: SupportSQLiteDatabase) {
             // create root folder
             val values = ContentValues().apply {
                 put("folderId", 1L)
@@ -34,14 +38,6 @@ abstract class FilesDatabase : RoomDatabase() {
                 put("name", "/")
             }
             db.insert("folders", CONFLICT_IGNORE, values)
-        }
-
-        override fun onOpen(db: SupportSQLiteDatabase) {
-            super.onOpen(db)
-        }
-
-        override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
-            super.onDestructiveMigration(db)
         }
     }
 

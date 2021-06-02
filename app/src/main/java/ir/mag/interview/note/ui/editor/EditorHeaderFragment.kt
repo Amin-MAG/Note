@@ -26,6 +26,7 @@ import ir.mag.interview.note.database.entity.note.Note
 import ir.mag.interview.note.databinding.HeaderEditorActionBarBinding
 import ir.mag.interview.note.ui.NotesMainActivity
 import ir.mag.interview.note.ui.main.dialog.CommonDialog
+import ir.mag.interview.note.ui.main.dialog.DeleteNoteDialog
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -68,29 +69,25 @@ constructor(
     }
 
     private fun setupUI() {
+        // set on click handler for header buttons
         binding.editorHeaderBack.setOnClickListener {
-            viewModel.editedNote.value?.let {
-                if (it.title == "") {
-                    it.title = resources.getString(R.string.untitled)
-                }
-            }
             GlobalScope.launch {
                 viewModel.updateNewNote()
             }
             viewModel.currentFolder.value?.let {
-                if (it.folderId == NoteRepository.ROOT_FOLDER_ID){
+                if (it.folderId == NoteRepository.ROOT_FOLDER_ID) {
                     viewModel.goBackToBrowserMode()
                 } else {
                     viewModel.goBackToInFolderBrowserMode()
                 }
             }
         }
+
         binding.editorHeaderMore.setOnClickListener {
             viewModel.currentNote.value?.let {
                 showMenu(binding.root, R.menu.note_file_more_menu, it)
             }
         }
-
     }
 
     //In the showMenu function from the previous example:
@@ -104,27 +101,14 @@ constructor(
             when (menuItem.itemId) {
 
                 R.id.delete_note -> {
-                    CommonDialog.Builder(this, requireContext())
-                        .setTitle(resources.getString(R.string.delete_note))
-                        .setDescription(resources.getString(R.string.delete_note_description))
-                        .setConfirmText(resources.getString(R.string.delete))
-                        .setListener(object : CommonDialog.OnHandle {
-                            override fun onCancel(
-                                dialog: AlertDialog,
-                                text: String
-                            ) {
-                                dialog.dismiss()
-                            }
-
-                            override fun onConfirm(
-                                dialog: AlertDialog,
-                                text: String
-                            ) {
+                    DeleteNoteDialog(this, requireContext(),
+                        object : DeleteNoteDialog.OnDeleteCallback {
+                            override fun onDelete(dialog: AlertDialog, text: String) {
                                 GlobalScope.launch {
                                     viewModel.deleteNote(file as Note)
 
                                     viewModel.currentFolder.value?.let {
-                                        if (it.folderId == NoteRepository.ROOT_FOLDER_ID){
+                                        if (it.folderId == NoteRepository.ROOT_FOLDER_ID) {
                                             viewModel.postGoBackToBrowser()
                                         } else {
                                             viewModel.postGoBackToInFolderBrowserMode()
@@ -133,17 +117,12 @@ constructor(
                                 }
                                 dialog.dismiss()
                             }
-                        })
-                        .build()
-                        .show()
+                        }).show()
                     true
                 }
 
                 else -> throw UnsupportedOperationException("there is not this item")
             }
-        }
-        popup.setOnDismissListener {
-            Log.d(TAG, "showMenu: Respond to popup being dismissed.")
         }
 
         popup.show()

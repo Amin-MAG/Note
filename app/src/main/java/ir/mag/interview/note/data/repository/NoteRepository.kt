@@ -1,8 +1,6 @@
 package ir.mag.interview.note.data.repository
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
@@ -23,10 +21,9 @@ constructor() {
     var mode: MutableLiveData<Modes> = MutableLiveData(Modes.BROWSER)
         private set
 
-    var currentNote: MutableLiveData<Note> = MutableLiveData()
+    var selectedNote: MutableLiveData<Note> = MutableLiveData()
         private set
-
-    var currentFolder: MutableLiveData<Folder> = MutableLiveData()
+    var selectedFolder: MutableLiveData<Folder> = MutableLiveData()
         private set
 
     var editedNote: MutableLiveData<Note> = MutableLiveData()
@@ -42,17 +39,17 @@ constructor() {
     }
 
     fun changeCurrentNote(note: Note) {
-        currentNote.value = note
+        selectedNote.value = note
     }
 
     fun postChangeCurrentFolder(folder: Folder) {
         Log.d(TAG, "postChangeCurrentFolder: ${folder.folderId}")
-        currentFolder.postValue(folder)
+        selectedFolder.postValue(folder)
     }
 
     fun changeCurrentFolder(folder: Folder) {
         Log.d(TAG, "changeCurrentFolder: ${folder.folderId}")
-        currentFolder.value = folder
+        selectedFolder.value = folder
     }
 
     companion object {

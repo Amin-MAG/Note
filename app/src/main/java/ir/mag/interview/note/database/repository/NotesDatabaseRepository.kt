@@ -21,10 +21,28 @@ constructor(
     val notes: LiveData<List<Note>> = noteDao.selectAll()
     val folders: LiveData<List<Folder>> = folderDao.selectAll()
 
+    /**
+     * Notes
+     */
     suspend fun addNote(note: Note): Long {
         return noteDao.insert(note)
     }
 
+    suspend fun updateNote(note: Note) {
+        noteDao.update(note)
+    }
+
+    fun getNoteByIdNow(noteId: Long): Note {
+        return noteDao.selectByIdNow(noteId)
+    }
+
+    suspend fun deleteNote(note: Note) {
+        noteDao.delete(note)
+    }
+
+    /**
+     * Folders
+     */
     suspend fun addFolder(folder: Folder) {
         folderDao.insert(folder)
     }
@@ -33,16 +51,9 @@ constructor(
         folderDao.update(folder)
     }
 
-    suspend fun updateNote(note: Note) {
-        noteDao.update(note)
-    }
 
     suspend fun deleteFolder(folder: Folder) {
         folderDao.delete(folder)
-    }
-
-    suspend fun deleteNote(note: Note) {
-        noteDao.delete(note)
     }
 
     fun getFolderByIdWithNotes(folderId: Long): LiveData<FolderWithNotes> {
@@ -52,27 +63,6 @@ constructor(
     fun getFolderById(folderId: Long): LiveData<Folder> {
         return folderDao.selectById(folderId)
     }
-
-    fun getFolderSubFolders(folderId: Long): LiveData<FolderWithSubFolders> {
-        return folderDao.readByIdWithSubFolders(folderId)
-    }
-
-    fun getFoldersByParentId(parentId: Long): LiveData<List<Folder>> {
-        return folderDao.selectFoldersByParentId(parentId)
-    }
-
-    fun getNoteById(noteId: Long): LiveData<Note> {
-        return noteDao.selectById(noteId)
-    }
-
-    fun getNoteByIdNow(noteId: Long): Note {
-        return noteDao.selectByIdNow(noteId)
-    }
-
-    fun getNotesByFolderId(folderId: Long): LiveData<List<Note>> {
-        return noteDao.selectByFolderId(folderId)
-    }
-
 
     companion object {
         const val TAG: String = "Repository.NotesDatabase"

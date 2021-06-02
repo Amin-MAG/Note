@@ -23,6 +23,7 @@ import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
 import ir.mag.interview.note.databinding.FragmentNotesBinding
 import ir.mag.interview.note.ui.NotesMainActivity
 import ir.mag.interview.note.ui.main.dialog.CommonDialog
+import ir.mag.interview.note.ui.main.dialog.CreateFolderDialog
 import ir.mag.interview.note.ui.main.recycler.adapter.FilesRecyclerAdapter
 import javax.inject.Inject
 import kotlin.math.log
@@ -66,15 +67,7 @@ constructor(
         )
         binding.lifecycleOwner = this
 
-        observe()
-        setupUI()
-
-        // Inflate the layout for this fragment
-        return binding.root
-    }
-
-
-    private fun observe() {
+        // check if no folder is selected
         if (viewModel.currentFolder.value == null) {
             viewModel.getRootFolder().observeOnce(this, Observer {
                 it?.let { folder ->
@@ -87,14 +80,20 @@ constructor(
                 }
             })
         }
+
+        setupUI()
+        observe()
+
+        // Inflate the layout for this fragment
+        return binding.root
     }
 
 
-    private fun setupUI() {
+    private fun observe() {
+        // observe the folder to change the mode
         viewModel.currentFolder.observe(viewLifecycleOwner, Observer {
             it?.let { folder ->
                 Log.d(TAG, "onCreateView current folder changed: ${folder.folderId}")
-
                 if (folder.folderId == NoteRepository.ROOT_FOLDER_ID) {
                     viewModel.changeModeToNormalBrowsing()
                 } else {
@@ -103,9 +102,7 @@ constructor(
             }
         })
 
-
-        // set adapter for files recycler and observe database
-        binding.notesFilesList.adapter = filesRecyclerAdapter
+        // observe files list that is connected to database
         viewModel.currentFiles.observe(viewLifecycleOwner, Observer {
             Log.d(TAG, "setupUI: in the current files observer")
 
@@ -117,16 +114,20 @@ constructor(
                 newFiles.addAll(list)
             }
 
-            logFiles(newFiles)
-
             filesRecyclerAdapter.files = newFiles
             filesRecyclerAdapter.notifyDataSetChanged()
         })
+    }
 
+
+    private fun setupUI() {
+        // set adapter for files recycler
+        binding.notesFilesList.adapter = filesRecyclerAdapter
 
         // floating action button
         binding.fabNewNote.setOnClickListener {
-            viewModel.addNote(resources.getString(R.string.untitled))
+            binding.fab.collapse()
+            viewModel.addNote()
             viewModel.currentNote.observeOnce(this, Observer {
                 it?.let {
                     viewModel.goToEditPage(it)
@@ -135,22 +136,11 @@ constructor(
         }
 
         binding.fabNewFolder.setOnClickListener {
-            CommonDialog.Builder(this, requireContext())
-                .setTitle(getString(R.string.new_folder))
-                .setDescription(getString(R.string.new_folder_desctiption))
-                .setConfirmText(getString(R.string.create_new_folder))
-                .setListener(object : CommonDialog.OnHandle {
-                    override fun onCancel(
-                        dialog: AlertDialog,
-                        text: String
-                    ) {
-                        dialog.dismiss()
-                    }
-
-                    override fun onConfirm(
-                        dialog: AlertDialog,
-                        text: String
-                    ) {
+            CreateFolderDialog(
+                this,
+                requireContext(),
+                object : CreateFolderDialog.OnCreateCallback {
+                    override fun onCreate(dialog: AlertDialog, text: String) {
                         if (text == "") {
                             viewModel.addFolder(resources.getString(R.string.unname))
                         } else {
@@ -158,43 +148,14 @@ constructor(
                         }
                         dialog.dismiss()
                     }
-                })
-                .setHasPrompt(true)
-                .setPromptHint(getString(R.string.folder_title))
-                .build()
-                .show()
-        }
-    }
-
-    private fun logFiles(newFiles: ArrayList<File>) {
-        for (file in newFiles) {
-            when (file.type) {
-                File.Types.NOTE -> {
-                    val note = file as Note
-                    Log.d(
-                        TAG,
-                        "setupUI: ${file.type} ${note.noteId} ${note.folderId} ${note.title}"
-                    )
-                }
-
-                File.Types.FOLDER -> {
-                    val folder = file as Folder
-                    Log.d(
-                        TAG,
-                        "setupUI: ${file.type} ${folder.folderId} ${folder.parentFolderId} ${folder.name}"
-                    )
-                }
-
-                else -> {
-                }
-            }
+                }).show()
+            binding.fab.collapse()
         }
     }
 
     companion object {
         private const val TAG = "Ui.NotesFragment";
     }
-
 
     private fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
         observe(lifecycleOwner, object : Observer<T> {

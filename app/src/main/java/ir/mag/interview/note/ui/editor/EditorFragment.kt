@@ -6,9 +6,12 @@ import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -60,13 +63,15 @@ constructor(
         binding.lifecycleOwner = this
 
         setupUI()
+        observe()
 
         // Inflate the layout for this fragment
         return binding.root
     }
 
-    private fun setupUI() {
+    private fun observe() {
         // NOTE: think about it later
+        // observe note to change edit note value and update the creation date
         viewModel.currentNote.observe(viewLifecycleOwner, Observer {
             it?.let {
                 binding.noteEditorTitle.text = SpannableStringBuilder(it.title)
@@ -77,7 +82,10 @@ constructor(
                 viewModel.editedNote.postValue(it)
             }
         })
+    }
 
+    private fun setupUI() {
+        // set listeners for editors
         binding.noteEditorTitle.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(editable: Editable?) {
             }
@@ -93,7 +101,6 @@ constructor(
                 }
             }
         })
-
         binding.noteEditorContent.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(editable: Editable?) {
             }
@@ -109,7 +116,17 @@ constructor(
                 }
             }
         })
+
+        // auto focus
+        binding.noteEditorTitle.requestFocus()
+        binding.noteEditorTitle.setOnKeyListener { view, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                binding.noteEditorContent.requestFocus()
+            }
+            false
+        }
     }
+
 
     companion object {
         private const val TAG = "Ui.NoteEditorFragment";

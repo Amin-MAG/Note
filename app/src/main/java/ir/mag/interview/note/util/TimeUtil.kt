@@ -1,11 +1,12 @@
 package ir.mag.interview.note.util
 
+import ir.mag.interview.note.R
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 object TimeUtil {
 
-    class TimeDifference(val type: TYPE,val amount: Long) {
+    class TimeDifference(val type: TYPE, val amount: Long) {
         enum class TYPE {
             YEAR, MONTH, DAY, HOUR, MINUTE, SECOND
         }
@@ -53,5 +54,17 @@ object TimeUtil {
             }
         }
     }
+
+    fun typeToPersianString(distanceDescription: TimeDifference): String {
+        return when (distanceDescription.type) {
+            TimeDifference.TYPE.SECOND -> "ثانیه"
+            TimeDifference.TYPE.MINUTE -> "دقیقه"
+            TimeDifference.TYPE.HOUR -> "ساعت"
+            TimeDifference.TYPE.DAY -> "روز"
+            TimeDifference.TYPE.MONTH -> "ماه"
+            TimeDifference.TYPE.YEAR -> "سال"
+        }
+    }
+
 
 }
