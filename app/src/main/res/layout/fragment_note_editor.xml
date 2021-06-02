@@ -10,7 +10,7 @@
         android:layout_marginRight="24dp">
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/materialTextView"
+            android:id="@+id/note_editor_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/iran_sans"
@@ -39,7 +39,7 @@
             app:boxStrokeWidthFocused="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/materialTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/note_editor_date" />
 
 
         <com.google.android.material.textfield.TextInputEditText

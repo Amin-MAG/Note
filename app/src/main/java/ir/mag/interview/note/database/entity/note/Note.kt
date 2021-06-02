@@ -13,9 +13,9 @@ class Note(
     @PrimaryKey(autoGenerate = true)
     val noteId: Long,
     val folderId: Long,
-    val title: String,
-    val content: String,
-    val date: Date
+    var title: String,
+    var content: String,
+    var date: Date
 ) : File() {
     override val type: Types
         get() = Types.NOTE

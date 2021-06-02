@@ -73,6 +73,9 @@ constructor(
 
     private fun setupUI() {
         binding.editorHeaderBack.setOnClickListener {
+            GlobalScope.launch {
+                viewModel.updateNewNote()
+            }
             viewModel.goBackToBrowser()
         }
         binding.editorHeaderMore.setOnClickListener {
