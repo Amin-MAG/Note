@@ -3,25 +3,23 @@ package ir.mag.interview.note.ui.editor
 import android.content.Context
 import android.os.Bundle
 import android.text.Editable
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
 import ir.mag.interview.note.databinding.FragmentNoteEditorBinding
-import ir.mag.interview.note.databinding.FragmentNoteEditorBindingImpl
 import ir.mag.interview.note.ui.NotesMainActivity
-import ir.mag.interview.note.ui.main.NotesViewModel
+import saman.zamani.persiandate.PersianDate
+import saman.zamani.persiandate.PersianDateFormat
 import javax.inject.Inject
-import kotlin.math.log
 
 
 /**
@@ -73,6 +71,9 @@ constructor(
             it?.let {
                 binding.noteEditorTitle.text = SpannableStringBuilder(it.title)
                 binding.noteEditorContent.text = SpannableStringBuilder(it.content)
+                val persianDate = PersianDate(it.creationDate)
+                val formatter = PersianDateFormat("d F Y")
+                binding.noteEditorDate.text = formatter.format(persianDate)
                 viewModel.editedNote.postValue(it)
             }
         })

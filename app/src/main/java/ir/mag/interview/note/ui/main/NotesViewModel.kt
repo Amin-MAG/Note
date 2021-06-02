@@ -1,7 +1,5 @@
 package ir.mag.interview.note.ui.main
 
-import android.icu.text.CaseMap
-import android.provider.ContactsContract
 import android.util.Log
 import androidx.lifecycle.*
 import ir.mag.interview.note.data.model.file.File
@@ -14,11 +12,9 @@ import ir.mag.interview.note.database.repository.NotesDatabaseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
-import java.lang.IllegalStateException
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
-import kotlin.math.log
 
 
 class NotesViewModel
@@ -33,7 +29,7 @@ constructor(
     var currentFiles: MediatorLiveData<EnumMap<File.Types, List<File>>> = MediatorLiveData()
 
     val dateComparator = Comparator { note1: Note, note2: Note ->
-        note2.date.compareTo(note1.date)
+        note2.lastUpdateDate.compareTo(note1.lastUpdateDate)
     }
 
     fun changeFolder(folder: Folder) {
@@ -77,7 +73,7 @@ constructor(
         return getFolderByIdWithNotes(currentFolder.value!!.folderId)
     }
 
-    private fun getFolderByIdWithNotes(folderId: Long): LiveData<FolderWithNotes> {
+    fun getFolderByIdWithNotes(folderId: Long): LiveData<FolderWithNotes> {
         return notesDB.getFolderByIdWithNotes(folderId)
     }
 
@@ -112,7 +108,7 @@ constructor(
     fun addNote(noteName: String) {
         currentFolder.value?.let { folder ->
             viewModelScope.launch(Dispatchers.IO + NonCancellable) {
-                val id = notesDB.addNote(Note(0, folder.folderId, noteName, "", Date()))
+                val id = notesDB.addNote(Note(0, folder.folderId, noteName, "", Date(), Date()))
                 val note = notesDB.getNoteByIdNow(id)
                 noteRepository.currentNote.postValue(note)
             }

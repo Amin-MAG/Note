@@ -19,4 +19,6 @@
     <string name="delete_folder_description">آیا از حذف این پوشه اطمینان دارید؟</string>
     <string name="edit_folder_name">تغییر عنوان پوشه</string>
     <string name="save">ذخیره</string>
+    <string name="count_notes">حاوی %1$d یادداشت</string>
+    <string name="last_visit">%1$d %2$s پیش</string>
 </resources>

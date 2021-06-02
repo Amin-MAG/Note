@@ -15,7 +15,8 @@ class Note(
     val folderId: Long,
     var title: String,
     var content: String,
-    var date: Date
+    var creationDate: Date,
+    var lastUpdateDate: Date
 ) : File() {
     override val type: Types
         get() = Types.NOTE

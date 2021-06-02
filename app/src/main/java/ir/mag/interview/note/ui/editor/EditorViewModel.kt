@@ -1,6 +1,5 @@
 package ir.mag.interview.note.ui.editor
 
-import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,7 +9,6 @@ import ir.mag.interview.note.database.entity.note.Note
 import ir.mag.interview.note.database.repository.NotesDatabaseRepository
 import java.util.*
 import javax.inject.Inject
-import kotlin.math.log
 
 
 class EditorViewModel
@@ -34,7 +32,7 @@ constructor(
 
     suspend fun updateNewNote() {
         noteRepository.editedNote.value?.let {
-            it.date = Date()
+            it.lastUpdateDate = Date()
             Log.d(TAG, "updateNewNote: ${it.content}")
             notesDB.updateNote(it)
         }

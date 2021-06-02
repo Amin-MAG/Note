@@ -5,6 +5,7 @@ import android.graphics.drawable.InsetDrawable
 import android.os.Build
 import android.text.SpannableStringBuilder
 import android.util.Log
+import android.util.TimeUtils
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -17,6 +18,9 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import ir.mag.interview.note.R
 import ir.mag.interview.note.data.model.file.File
@@ -26,6 +30,7 @@ import ir.mag.interview.note.databinding.FileViewHolderBinding
 import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
 import ir.mag.interview.note.ui.main.NotesViewModel
 import ir.mag.interview.note.ui.main.dialog.CommonDialog
+import ir.mag.interview.note.util.TimeUtil
 import kotlinx.coroutines.*
 import kotlin.collections.ArrayList
 
@@ -65,6 +70,15 @@ constructor(
         private const val TAG = "Adapter.FilesRecycler"
     }
 
+    private fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
+        observe(lifecycleOwner, object : Observer<T> {
+            override fun onChanged(t: T?) {
+                observer.onChanged(t)
+                removeObserver(this)
+            }
+        })
+    }
+
     inner class FileViewHolder(private val binding: FileViewHolderBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
@@ -77,7 +91,7 @@ constructor(
                     val note = file as Note
 
                     binding.fileCardTitle.text = note.title
-                    binding.fileCardDescription.text = note.date.toString()
+                    bindLastVisitDate(TimeUtil.getDistanceDescription(note.lastUpdateDate))
                     binding.fileCardIconFrame.background =
                         ContextCompat.getDrawable(activity, R.drawable.circle_light_blue);
                     binding.fileCardIcon.setImageResource(R.drawable.ic_note)
@@ -95,7 +109,13 @@ constructor(
                     val folder = file as Folder
 
                     binding.fileCardTitle.text = folder.name
-                    binding.fileCardDescription.text = "تعداد"
+                    notesViewModel.getFolderByIdWithNotes(folder.folderId)
+                        .observeOnce(activity, Observer {
+                            it?.notes?.let { notes ->
+                                binding.fileCardDescription.text =
+                                    activity.getString(R.string.count_notes, notes.size)
+                            }
+                        })
                     binding.fileCardIconFrame.background =
                         ContextCompat.getDrawable(activity, R.drawable.circle_yellow);
                     binding.fileCardIcon.setImageResource(R.drawable.ic_folder)
@@ -114,6 +134,23 @@ constructor(
                 else -> throw UnsupportedOperationException("can not show this type of file")
             }
 
+        }
+
+        private fun bindLastVisitDate(distanceDescription: TimeUtil.TimeDifference) {
+            val parameter = when (distanceDescription.type) {
+                TimeUtil.TimeDifference.TYPE.SECOND -> "ثانیه"
+                TimeUtil.TimeDifference.TYPE.MINUTE -> "دقیقه"
+                TimeUtil.TimeDifference.TYPE.HOUR -> "ساعت"
+                TimeUtil.TimeDifference.TYPE.DAY -> "روز"
+                TimeUtil.TimeDifference.TYPE.MONTH -> "ماه"
+                TimeUtil.TimeDifference.TYPE.YEAR -> "سال"
+            }
+            val distance = activity.resources.getString(
+                R.string.last_visit,
+                distanceDescription.amount.toInt(),
+                parameter
+            )
+            binding.fileCardDescription.text = distance
         }
 
         //In the showMenu function from the previous example:
