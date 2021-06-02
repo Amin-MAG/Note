@@ -81,7 +81,7 @@ constructor(
 
     private fun setupUI() {
         // bind view
-        viewModel.currentFolder.observe(this, Observer {
+        viewModel.currentFolder.observe(viewLifecycleOwner, Observer {
             binding.inFolderHeaderTitle.text = it.name
         })
 

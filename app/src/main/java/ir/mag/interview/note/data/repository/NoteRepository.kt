@@ -1,6 +1,8 @@
 package ir.mag.interview.note.data.repository
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
@@ -30,10 +32,12 @@ constructor() {
     var editedNote: MutableLiveData<Note> = MutableLiveData()
 
     fun changeMode(newMode: Modes) {
+        Log.d(TAG, "changeMode: $newMode")
         mode.value = newMode
     }
 
     fun postChangeMode(newMode: Modes) {
+        Log.d(TAG, "postChangeMode: $newMode")
         mode.postValue(newMode)
     }
 

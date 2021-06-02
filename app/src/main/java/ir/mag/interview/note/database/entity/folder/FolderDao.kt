@@ -14,7 +14,7 @@ interface FolderDao {
     suspend fun insert(folder: Folder)
 
     @Query("SELECT * FROM folders ORDER BY folderId DESC")
-    fun readAll(): LiveData<List<Folder>>
+    fun selectAll(): LiveData<List<Folder>>
 
     @Query("SELECT * FROM folders WHERE folderId = :folderId ORDER BY folderId DESC")
     fun selectById(folderId: Long): LiveData<Folder>
@@ -27,6 +27,9 @@ interface FolderDao {
 
     @Query("SELECT * FROM folders WHERE folderId = :folderId ORDER BY folderId DESC")
     fun readByIdWithSubFolders(folderId: Long): LiveData<FolderWithSubFolders>
+
+    @Query("SELECT * FROM folders WHERE parentFolderId = :parentId ORDER BY folderId DESC")
+    fun selectFoldersByParentId(parentId: Long): LiveData<List<Folder>>
 
     @Update
     suspend fun update(folder: Folder);

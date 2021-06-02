@@ -67,7 +67,7 @@ constructor(
 
     private fun setupUI() {
         // NOTE: think about it later
-        viewModel.currentNote.observe(this, Observer {
+        viewModel.currentNote.observe(viewLifecycleOwner, Observer {
             it?.let {
                 binding.noteEditorTitle.text = SpannableStringBuilder(it.title)
                 binding.noteEditorContent.text = SpannableStringBuilder(it.content)

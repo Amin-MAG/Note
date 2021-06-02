@@ -91,7 +91,7 @@ constructor(
 
 
     private fun setupUI() {
-        viewModel.currentFolder.observe(this, Observer {
+        viewModel.currentFolder.observe(viewLifecycleOwner, Observer {
             it?.let { folder ->
                 Log.d(TAG, "onCreateView current folder changed: ${folder.folderId}")
 
@@ -100,15 +100,15 @@ constructor(
                 } else {
                     viewModel.changeModeToInFolderBrowsing()
                 }
-
-                viewModel.setCurrentFilesSources()
             }
         })
 
 
         // set adapter for files recycler and observe database
         binding.notesFilesList.adapter = filesRecyclerAdapter
-        viewModel.currentFiles.observe(this, Observer {
+        viewModel.currentFiles.observe(viewLifecycleOwner, Observer {
+            Log.d(TAG, "setupUI: in the current files observer")
+
             val newFiles = ArrayList<File>()
             it?.get(File.Types.FOLDER)?.let { list ->
                 newFiles.addAll(list)

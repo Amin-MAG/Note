@@ -26,9 +26,13 @@ constructor(
 
     var currentFolder: LiveData<Folder> = noteRepository.currentFolder
     var currentNote: LiveData<Note> = noteRepository.currentNote
+
+    var allFolders: LiveData<List<Folder>> = notesDB.folders
+    var allNotes: LiveData<List<Note>> = notesDB.notes
+
     var currentFiles: MediatorLiveData<EnumMap<File.Types, List<File>>> = MediatorLiveData()
 
-    val dateComparator = Comparator { note1: Note, note2: Note ->
+    private val dateComparator = Comparator { note1: Note, note2: Note ->
         note2.lastUpdateDate.compareTo(note1.lastUpdateDate)
     }
 
@@ -41,65 +45,64 @@ constructor(
     }
 
     fun setCurrentFilesSources() {
+        Log.d(TAG, "setCurrentFilesSources: ")
+
         currentFiles.value = EnumMap(File.Types::class.java)
         currentFiles.value?.put(File.Types.FOLDER, ArrayList())
         currentFiles.value?.put(File.Types.NOTE, ArrayList())
-
         currentFiles.value?.let {
 
-            currentFiles.addSource(getCurrentNotes()) { folder ->
-                folder?.notes?.let { notes ->
-                    val sortedNotes = notes.sortedWith(dateComparator)
-                    it[File.Types.NOTE] = sortedNotes
-                    currentFiles.value = it
+            // If notes change then files should change
+            currentFiles.addSource(allNotes) { notesList ->
+                Log.d(TAG, "setCurrentFilesSources: Notes has been changed")
+                notesList?.let { notes ->
+                    val newNotes = ArrayList(notes).filter {
+                        it.folderId == currentFolder.value?.folderId
+                    }
+                    it[File.Types.NOTE] = newNotes.sortedWith(dateComparator)
+                    currentFiles.postValue(it)
                 }
             }
 
-            currentFiles.addSource(getCurrentSubFolders()) { folder ->
-                folder?.subFolders?.let { folders ->
-                    it[File.Types.FOLDER] = folders
-                    currentFiles.value = it
+            // If folders change then files should change
+            currentFiles.addSource(allFolders) { folderList ->
+                Log.d(TAG, "setCurrentFilesSources: Folders has been changed")
+                folderList?.let { folders ->
+                    val newFolderList = ArrayList(folders).filter {
+                        it.parentFolderId == currentFolder.value?.folderId
+                    }
+                    it[File.Types.FOLDER] = newFolderList
+                    currentFiles.postValue(it)
+                }
+            }
+
+            // If navigate another page then files should change
+            currentFiles.addSource(currentFolder) { newCurrentFolder ->
+                newCurrentFolder?.let { folder ->
+                    val newNotes: List<Note>
+                    val newFolders: List<Folder>
+                    if (allFolders.value != null) {
+                        newFolders = ArrayList(allFolders.value!!).filter {
+                            it.parentFolderId == folder.folderId
+                        }
+                        it[File.Types.FOLDER] = newFolders
+                    }
+                    if (allNotes.value != null) {
+                        newNotes = ArrayList(allNotes.value!!).filter {
+                            it.folderId == folder.folderId
+                        }
+                        it[File.Types.NOTE] = newNotes.sortedWith(dateComparator)
+                    }
+                    currentFiles.postValue(it)
                 }
             }
         }
     }
 
-    fun goToEditPage(note: Note) {
-        noteRepository.changeCurrentNote(note)
-        noteRepository.changeMode(NoteRepository.Modes.EDITOR)
-    }
-
-    private fun getCurrentNotes(): LiveData<FolderWithNotes> {
-        return getFolderByIdWithNotes(currentFolder.value!!.folderId)
-    }
-
-    fun getFolderByIdWithNotes(folderId: Long): LiveData<FolderWithNotes> {
-        return notesDB.getFolderByIdWithNotes(folderId)
-    }
-
-    private fun getCurrentSubFolders(): LiveData<FolderWithSubFolders> {
-        return getFolderByIdWithSubFolders(currentFolder.value!!.folderId)
-    }
-
-    private fun getFolderByIdWithSubFolders(folderId: Long): LiveData<FolderWithSubFolders> {
-        return notesDB.getFolderSubFolders(folderId)
-    }
-
-    fun getRootFolder(): LiveData<Folder> {
-        return notesDB.getFolderById(NoteRepository.ROOT_FOLDER_ID)
-    }
-
-    fun getParentFolder(): LiveData<Folder> {
-        return notesDB.getFolderById(currentFolder.value!!.parentFolderId!!)
-    }
 
     fun addFolder(folderName: String) {
         currentFolder.value?.let { folder ->
             viewModelScope.launch(Dispatchers.IO + NonCancellable) {
-                Log.d(TAG, "addFolder: ${currentFolder.value!!.folderId}")
-                Log.d(TAG, "addFolder: ${currentFolder.value!!.parentFolderId}")
-                Log.d(TAG, "addFolder: ${currentFolder.value!!.name}")
-                Log.d(TAG, "addFolder: ----------------------------------")
                 notesDB.addFolder(Folder(0, folder.folderId, folderName))
             }
         }
@@ -127,12 +130,28 @@ constructor(
         notesDB.deleteNote(note)
     }
 
+    fun getFolderByIdWithNotes(folderId: Long): LiveData<FolderWithNotes> {
+        return notesDB.getFolderByIdWithNotes(folderId)
+    }
+
+    fun getRootFolder(): LiveData<Folder> {
+        return notesDB.getFolderById(NoteRepository.ROOT_FOLDER_ID)
+    }
+
+    fun getParentFolder(): LiveData<Folder> {
+        return notesDB.getFolderById(currentFolder.value!!.parentFolderId!!)
+    }
     fun changeModeToInFolderBrowsing() {
         noteRepository.changeMode(NoteRepository.Modes.IN_FOLDER_BROWSING)
     }
 
     fun changeModeToNormalBrowsing() {
         noteRepository.changeMode(NoteRepository.Modes.BROWSER)
+    }
+
+    fun goToEditPage(note: Note) {
+        noteRepository.changeCurrentNote(note)
+        noteRepository.changeMode(NoteRepository.Modes.EDITOR)
     }
 
     companion object {
