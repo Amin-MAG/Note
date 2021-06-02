@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ir.mag.interview.note.data.repository.NoteRepository
+import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
 import ir.mag.interview.note.database.repository.NotesDatabaseRepository
 import java.util.*
@@ -20,9 +21,10 @@ constructor(
 
     var mode: LiveData<NoteRepository.Modes> = noteRepository.mode
     var currentNote: LiveData<Note> = noteRepository.currentNote
+    var currentFolder: LiveData<Folder> = noteRepository.currentFolder
     var editedNote: MutableLiveData<Note> = noteRepository.editedNote
 
-    fun goBackToBrowser() {
+    fun goBackToBrowserMode() {
         noteRepository.changeMode(NoteRepository.Modes.BROWSER)
     }
 
@@ -40,6 +42,14 @@ constructor(
 
     suspend fun deleteNote(note: Note) {
         notesDB.deleteNote(note)
+    }
+
+    fun goBackToInFolderBrowserMode() {
+        noteRepository.changeMode(NoteRepository.Modes.IN_FOLDER_BROWSING)
+    }
+
+    fun postGoBackToInFolderBrowserMode() {
+        noteRepository.postChangeMode(NoteRepository.Modes.IN_FOLDER_BROWSING)
     }
 
     companion object {

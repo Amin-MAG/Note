@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.drawable.InsetDrawable
 import android.os.Build
 import android.os.Bundle
-import android.text.SpannableStringBuilder
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -22,13 +21,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
 import ir.mag.interview.note.data.model.file.File
-import ir.mag.interview.note.database.entity.folder.Folder
+import ir.mag.interview.note.data.repository.NoteRepository
 import ir.mag.interview.note.database.entity.note.Note
-import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
 import ir.mag.interview.note.databinding.HeaderEditorActionBarBinding
 import ir.mag.interview.note.ui.NotesMainActivity
-import ir.mag.interview.note.ui.main.InFolderHeaderFragment
-import ir.mag.interview.note.ui.main.NotesViewModel
 import ir.mag.interview.note.ui.main.dialog.CommonDialog
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -81,7 +77,13 @@ constructor(
             GlobalScope.launch {
                 viewModel.updateNewNote()
             }
-            viewModel.goBackToBrowser()
+            viewModel.currentFolder.value?.let {
+                if (it.folderId == NoteRepository.ROOT_FOLDER_ID){
+                    viewModel.goBackToBrowserMode()
+                } else {
+                    viewModel.goBackToInFolderBrowserMode()
+                }
+            }
         }
         binding.editorHeaderMore.setOnClickListener {
             viewModel.currentNote.value?.let {
@@ -120,7 +122,14 @@ constructor(
                             ) {
                                 GlobalScope.launch {
                                     viewModel.deleteNote(file as Note)
-                                    viewModel.postGoBackToBrowser()
+
+                                    viewModel.currentFolder.value?.let {
+                                        if (it.folderId == NoteRepository.ROOT_FOLDER_ID){
+                                            viewModel.postGoBackToBrowser()
+                                        } else {
+                                            viewModel.postGoBackToInFolderBrowserMode()
+                                        }
+                                    }
                                 }
                                 dialog.dismiss()
                             }

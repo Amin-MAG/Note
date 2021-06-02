@@ -1,5 +1,6 @@
 package ir.mag.interview.note.data.repository
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import ir.mag.interview.note.database.entity.folder.Folder
 import ir.mag.interview.note.database.entity.note.Note
@@ -41,10 +42,12 @@ constructor() {
     }
 
     fun postChangeCurrentFolder(folder: Folder) {
+        Log.d(TAG, "postChangeCurrentFolder: ${folder.folderId}")
         currentFolder.postValue(folder)
     }
 
     fun changeCurrentFolder(folder: Folder) {
+        Log.d(TAG, "changeCurrentFolder: ${folder.folderId}")
         currentFolder.value = folder
     }
 

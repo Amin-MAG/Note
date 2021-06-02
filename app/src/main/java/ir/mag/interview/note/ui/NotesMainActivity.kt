@@ -23,7 +23,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.lang.UnsupportedOperationException
 import javax.inject.Inject
-import kotlin.math.log
 
 class NotesMainActivity : AppCompatActivity() {
 
@@ -81,7 +80,13 @@ class NotesMainActivity : AppCompatActivity() {
                     GlobalScope.launch {
                         editorViewModel.updateNewNote()
                     }
-                    editorViewModel.goBackToBrowser()
+                    editorViewModel.currentFolder.value?.let {folder->
+                        if (folder.folderId == NoteRepository.ROOT_FOLDER_ID){
+                            editorViewModel.goBackToBrowserMode()
+                        } else {
+                            editorViewModel.goBackToInFolderBrowserMode()
+                        }
+                    }
                 }
                 else -> super.finish()
             }
@@ -126,10 +131,13 @@ class NotesMainActivity : AppCompatActivity() {
                             notesFragment
                         )
                     }
-                    NoteRepository.Modes.EDITOR -> updateFragments(
-                        editorHeaderFragment,
-                        editorFragment
-                    )
+                    NoteRepository.Modes.EDITOR -> {
+                        Log.d(TAG, "setupUI: change to in editing mode")
+                        updateFragments(
+                            editorHeaderFragment,
+                            editorFragment
+                        )
+                    }
 
                     else -> UnsupportedOperationException("this kind of mode is not supported")
                 }
