@@ -1,6 +1,6 @@
 # Notepad (Cafe interview)
 
-The apk file is in `app/release.notes.apk`
+The apk file is in `app/release/notes.apk`
 
 Please check out this video of this app:
     
