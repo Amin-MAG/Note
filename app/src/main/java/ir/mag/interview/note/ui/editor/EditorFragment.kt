@@ -48,6 +48,11 @@ constructor(
         (activity as NotesMainActivity).notesComponent.inject(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        focusTitle()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -117,14 +122,24 @@ constructor(
             }
         })
 
-        // auto focus
-        binding.noteEditorTitle.requestFocus()
+        // set auto focus
+        focusTitle()
         binding.noteEditorTitle.setOnKeyListener { view, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                binding.noteEditorContent.requestFocus()
+                focusContent()
             }
             false
         }
+    }
+
+    private fun focusContent() {
+        binding.noteEditorContent.requestFocus()
+        binding.noteEditorContent.setSelection(binding.noteEditorContent.text.toString().length)
+    }
+
+    private fun focusTitle() {
+        binding.noteEditorTitle.requestFocus()
+        binding.noteEditorTitle.setSelection(binding.noteEditorTitle.text.toString().length)
     }
 
 
