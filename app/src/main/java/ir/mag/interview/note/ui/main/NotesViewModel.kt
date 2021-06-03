@@ -39,7 +39,7 @@ constructor(
     var allFolders: LiveData<List<Folder>> = notesDB.folders
     var allNotes: LiveData<List<Note>> = notesDB.notes
 
-    var currentFiles: MediatorLiveData<EnumMap<File.Types, List<File>>> = MediatorLiveData()
+    var currentFiles: MediatorLiveData<EnumMap<File.Types, List<File>?>> = MediatorLiveData()
 
     private val dateComparator = Comparator { note1: Note, note2: Note ->
         note2.lastUpdateDate.compareTo(note1.lastUpdateDate)

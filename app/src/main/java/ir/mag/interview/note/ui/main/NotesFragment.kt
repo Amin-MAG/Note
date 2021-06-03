@@ -17,16 +17,13 @@ import androidx.lifecycle.ViewModelProvider
 import ir.mag.interview.note.R
 import ir.mag.interview.note.data.model.file.File
 import ir.mag.interview.note.data.repository.NoteRepository
-import ir.mag.interview.note.database.entity.folder.Folder
-import ir.mag.interview.note.database.entity.note.Note
-import ir.mag.interview.note.databinding.FragmentDialogCommonBinding
 import ir.mag.interview.note.databinding.FragmentNotesBinding
 import ir.mag.interview.note.ui.NotesMainActivity
-import ir.mag.interview.note.ui.main.dialog.CommonDialog
 import ir.mag.interview.note.ui.main.dialog.CreateFolderDialog
 import ir.mag.interview.note.ui.main.recycler.adapter.FilesRecyclerAdapter
+import java.util.*
 import javax.inject.Inject
-import kotlin.math.log
+import kotlin.collections.ArrayList
 
 /**
  * A simple [Fragment] subclass.
@@ -68,7 +65,8 @@ constructor(
         binding.lifecycleOwner = this
 
         // check if no folder is selected
-        if (viewModel.currentFolder.value == null) {
+        // for bug fix v0.1.1
+        if (viewModel.currentFolder.value == null || viewModel.currentFiles.value == null) {
             viewModel.getRootFolder().observeOnce(this, Observer {
                 it?.let { folder ->
                     Log.d(
@@ -104,23 +102,34 @@ constructor(
 
         // observe files list that is connected to database
         viewModel.currentFiles.observe(viewLifecycleOwner, Observer {
-            Log.d(TAG, "setupUI: in the current files observer")
-
-            val newFiles = ArrayList<File>()
-            it?.get(File.Types.FOLDER)?.let { list ->
-                newFiles.addAll(list)
+            it?.let {
+                updateRecycler(it)
             }
-            it?.get(File.Types.NOTE)?.let { list ->
-                newFiles.addAll(list)
-            }
-
-            filesRecyclerAdapter.files = newFiles
-            filesRecyclerAdapter.notifyDataSetChanged()
         })
+    }
+
+    private fun updateRecycler(files: EnumMap<File.Types, List<File>?>) {
+        Log.d(TAG, "setupUI: in the current files observer")
+
+        val newFiles = ArrayList<File>()
+        files[File.Types.FOLDER]?.let { list ->
+            newFiles.addAll(list)
+        }
+        files[File.Types.NOTE]?.let { list ->
+            newFiles.addAll(list)
+        }
+
+        filesRecyclerAdapter.files = newFiles
+        filesRecyclerAdapter.notifyDataSetChanged()
     }
 
 
     private fun setupUI() {
+        // for bug fix v0.1.1
+        viewModel.currentFiles.value?.let {
+            updateRecycler(it)
+        }
+
         // set adapter for files recycler
         binding.notesFilesList.adapter = filesRecyclerAdapter
 
